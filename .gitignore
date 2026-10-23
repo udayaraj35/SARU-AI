@@ -1,0 +1,42 @@
+# Secrets and personal/runtime data
+.env
+.env.*
+!.env.example
+settings.json
+settings*.json
+*.db
+*.db-*
+*.sqlite*
+*.jsonl
+*.log
+*.pem
+*.key
+credentials*.json
+token*.json
+client_secret*.json
+# Local environments, caches, vendor installs and browser profiles
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+node_modules/
+.gui-test*/
+.saru-backups/
+.asset-tools/
+.reference-video/
+.repo-review/
+.setup-build-env/
+.startup-diagnostic/
+.voice-sdk/
+integrations/
+profiles/
+recordings/
+exports/
+Work/
+# Generated build artifacts; distribute installers separately
+build/
+dist/
+*.spec
+*.exe
+*.zip
+!wacrm_source.zip
