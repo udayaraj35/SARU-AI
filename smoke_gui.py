@@ -26,6 +26,23 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
     app['send_message']('एप खोल्नुहोस्',app['active_page'].chat_output)
     route.assert_called_once_with('एप खोल्नुहोस्',app['active_page'].chat_output);cloud.assert_not_called()
    app['cfg']['speak']=False
+   # Own-app commands remain local, and planning does not request owner verification.
+   with patch.dict(app,{'authorize_source_edit':Mock(return_value=False)}):
+    studio=app['improvement_studio']('fix voice interruptions');root.update_idletasks()
+    assert studio.winfo_exists()
+    chosen=[studio.files.get(i) for i in studio.files.curselection()]
+    assert 'live_voice.py' in chosen and 'dashboard_layout.py' not in chosen
+    app['send_message']('saru update status');assert app['pending_actions'].peek() is None
+    with patch('improvement_ui.generate') as generation:
+     app['send_message']('generate saru update')
+     assert app['pending_actions'].peek() is not None
+     app['process_pending_reply']('cancel');generation.assert_not_called()
+    studio.set_request('change interface colors')
+    assert 'dashboard_layout.py' in [studio.files.get(i) for i in studio.files.curselection()]
+    studio.close()
+   app['send_message']('open settings');root.update_idletasks()
+   app['send_message']('close settings');root.update_idletasks()
+   assert app['active_page'].__class__.__name__=='Dashboard'
    power=Mock(return_value='Mock power requested')
    with patch.dict(app,{'propose_power_action':power}):
     app['send_message']('pc off gara');power.assert_called_once_with('shutdown')

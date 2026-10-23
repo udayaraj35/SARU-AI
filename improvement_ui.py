@@ -21,9 +21,10 @@ class ImprovementStudio(tk.Toplevel):
   select=tk.Frame(self,bg=BG);select.pack(fill='x',padx=14)
   label(select,'Source files (choose 1–8)',fg=MUTED).pack(side='left',padx=4)
   self.files=tk.Listbox(select,selectmode='extended',exportselection=False,height=5,bg=PANEL,fg=TEXT);self.files.pack(side='left',fill='x',expand=True,padx=8)
+  suggested=set(self.manager.suggest_files(request or 'dashboard design'))
   for i,name in enumerate(self.manager.available()):
    self.files.insert('end',name)
-   if name in ('dashboard_layout.py','dashboard_ui.py','settings_ui.py'):self.files.selection_set(i)
+   if name in suggested:self.files.selection_set(i)
   toolbar=tk.Frame(self,bg=BG);toolbar.pack(fill='x',padx=14,pady=8)
   self.generate_button=button(toolbar,'Generate improvement proposal',self.propose,True);self.generate_button.pack(side='left',padx=3)
   self.apply_button=button(toolbar,'Approve and apply reviewed diff',self.apply);self.apply_button.pack(side='left',padx=3)
@@ -36,6 +37,20 @@ class ImprovementStudio(tk.Toplevel):
   self.diff.configure(yscrollcommand=vertical.set,xscrollcommand=horizontal.set);area.rowconfigure(0,weight=1);area.columnconfigure(0,weight=1)
   self.apply_button.configure(state='disabled');self.rollback_button.configure(state='disabled')
   apply_theme(self,config.get('theme','Neon Rose'));apply_text_scale(self,config.get('ui_text_scale',100));self.pump()
+ def set_request(self,request):
+  if self.busy:raise ValueError('Wait for the current source operation before replacing its request.')
+  self.request.delete('1.0','end');self.request.insert('1.0',request)
+  self.ready=None;self.apply_button.configure(state='disabled');self.rollback_button.configure(state='disabled')
+  names=self.manager.suggest_files(request);available=list(self.files.get(0,'end'));self.files.selection_clear(0,'end')
+  for name in names:self.files.selection_set(available.index(name))
+  self.note.set('Request staged; suggested source: '+', '.join(names)+'. Generate a proposal to continue.')
+ def status_text(self):
+  names=[self.files.get(i) for i in self.files.curselection()]
+  state='working' if self.busy else 'request staged'
+  summary=''
+  if self.ready:
+   proposal,saved=self.manager.load(self.ready[0]);state='working' if self.busy else saved['state'];summary=proposal['summary']
+  return 'SARU self-improvement: '+state+'\nSelected source: '+', '.join(names)+'\n'+summary+'\n'+self.note.get()
  def show(self,identifier):
   proposal,state=self.manager.load(identifier);self.ready=(identifier,state['digest'])
   self.diff.configure(state='normal');self.diff.delete('1.0','end');self.diff.insert('1.0',proposal['summary']+'\n\n'+proposal['diff']);self.diff.configure(state='disabled')

@@ -2,7 +2,7 @@
 import ast,difflib,hashlib,json,os,shutil,uuid,tempfile
 from pathlib import Path
 
-PROTECTED={'owner_edit.py','improvement_core.py','improvement_ui.py','improvement_ai.py','settings_store.py','install_support.py','installer.py','installer_backend.py','launch_saru.py','update_manager.py','automatic_updates.py','version.py','recover_saru.py'}
+PROTECTED={'saru_restart.py','owner_edit.py','improvement_core.py','improvement_ui.py','improvement_ai.py','settings_store.py','install_support.py','installer.py','installer_backend.py','launch_saru.py','update_manager.py','automatic_updates.py','version.py','recover_saru.py'}
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def canonical(value):return json.dumps(value,ensure_ascii=False,sort_keys=True).encode('utf-8')
@@ -23,6 +23,28 @@ class ImprovementManager:
    try:self.target(path.name);result.append(path.name)
    except ValueError:pass
   return sorted(result)
+ def suggest_files(self,request):
+  """Select bounded existing source by the requested feature, never private data."""
+  q=str(request).casefold();available=set(self.available());selected=[]
+  groups=[
+   (('interface','dashboard','design','theme','colour','color','portrait','photo','इन्टरफेस','डिजाइन','फोटो','थिम','intraface','desine'),('dashboard_layout.py','dashboard_ui.py','reference_widgets.py','theme_manager.py')),
+   (('volume','brightness','display','उज्यालो'),('quick_device_controls.py','smooth_controls.py','pc_telemetry.py')),
+   (('voice','microphone','audio','speaker','आवाज','बोल','सुन्न'),('live_voice.py','voice_hub.py','voice_ui.py')),
+   (('setting','सेटिङ'),('settings_ui.py',)),
+   (('browser','ब्राउजर'),('saru_browser.py','saru_browser_host.py')),
+   (('memory','remember','याद','सम्झ'),('companion_memory.py',)),
+   (('office','agent','अफिस'),('office_core.py','office_ui.py','office_scene.py')),
+   (('command','button','app open','खोल','बटन'),('assistant_commands.py','system_intents.py','ui_control.py','app_launch.py'))]
+  for words,names in groups:
+   if any(word in q for word in words):
+    for name in names:
+     if name in available and name not in selected:selected.append(name)
+  if not selected:selected=[name for name in ('app.py','assistant_commands.py') if name in available]
+  chosen=[];size=0
+  for name in selected:
+   length=len(self.target(name).read_text(encoding='utf-8-sig'))
+   if len(chosen)<8 and size+length<=180000:chosen.append(name);size+=length
+  return chosen
  def snapshot(self,names):
   if not 1<=len(names)<=8:raise ValueError('Select 1–8 source files.')
   files={name:self.target(name).read_text(encoding='utf-8-sig') for name in names}

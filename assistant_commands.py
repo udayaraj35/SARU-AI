@@ -15,7 +15,8 @@ Voice profiles: save my voice as Udaya; compare my voice; voice profiles
 Memory: save note Buy milk; remember My preferred language is Nepali; show notes
 Files: summarize file (choose a text/code file); create folder My Work
 Math: calculate (12 + 8) * 5
-Self improvement: improve saru <code/design change> (review diff, apply with backup, restart)
+Own app: open saru; hide saru; close settings; restart saru; close saru (fully exits voice too)
+Self improvement: improve saru <code/design change>; generate saru update; saru update status; apply saru update; rollback saru update (exact review, backup and owner verification before applying)
 Media: open youtube player; play saved video <name>; pause video; next video; video volume 60; save youtube <URL> as <name>
 Drafts: whatsapp to +359123456789: Hello; email to user@example.com: Subject | Body
 Other messages go to your configured AI provider. Social drafts need your final Send/Publish in the site.'''
@@ -97,7 +98,7 @@ def parse_command(command):
  if m:return ('media_control',('volume',int(m[1]))) if int(m[1])<=100 else ('invalid','Use a value from 0 to 100.')
  m=re.fullmatch(r'save youtube\s+(https?://\S+)(?:\s+as\s+(.+))?',q,re.I)
  if m:return 'media_save',(m[1],m[2] or '')
- m=re.fullmatch(r'(?:आफ्नो कोड सुधार|आफूलाई अपडेट गर|aafno code update gara|aafu lai update gara)\s*[:：]?\s*(.*)',q,re.I)
+ m=re.fullmatch(r'(?:आफ्नो कोड सुधार|आफूलाई अपडेट गर|aafno code update gara|aafu lai update gara|aafu lai improve gara|aafno app update gara|आफूलाई सुधार गर)\s*[:：]?\s*(.*)',q,re.I)
  if m:return 'self_improve',m[1].strip() or None
  m=re.fullmatch(r'(?:change your code to|improve yourself by|update saru to)\s+(.+)',q,re.I)
  if m:return 'self_improve',m[1].strip()

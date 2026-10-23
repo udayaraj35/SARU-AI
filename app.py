@@ -597,10 +597,9 @@ improvement_window=None
 
 def improvement_studio(request=''):
  global improvement_window
- if not authorize_source_edit():return
  if improvement_window is not None and improvement_window.winfo_exists():
   improvement_window.deiconify();improvement_window.lift()
-  if request:improvement_window.request.delete('1.0','end');improvement_window.request.insert('1.0',request)
+  if request:improvement_window.set_request(request)
   return improvement_window
  from improvement_ui import ImprovementStudio
  improvement_window=ImprovementStudio(root,cfg,ROOT,DATA,request,authorize=authorize_source_edit,consent=offer_pending_action)
@@ -722,6 +721,7 @@ screen_watch_window=None
 def apply_saru_control(control):
  global screen_watch_window
  kind,value=control
+ if kind=='lifecycle':return control_own_app(value)
  if kind=='settings':settings()
  elif kind=='view':
   set_home_view(value);show_dashboard()
@@ -750,12 +750,14 @@ def apply_saru_control(control):
  elif kind=='page':
   {'chat':chat_window,'profile':profile_page,'social':social_media_page,'video':youtube_studio,'skills':repository_center,'updates':update_center}[value]()
  elif kind in ('edit','edit_files','edit_request'):
+  if kind=='edit' and value=='status':
+   return improvement_window.status_text() if improvement_window is not None and improvement_window.winfo_exists() else 'No self-improvement session is open. Say improve saru followed by your requested change.'
   studio=improvement_studio()
   if studio is None:raise ValueError('Owner edit verification required.')
   if kind=='edit':getattr(studio,{'generate':'propose','apply':'apply','rollback':'rollback'}[value])()
   elif kind=='edit_request':
    if studio.busy:raise ValueError('Wait for the current edit operation.')
-   studio.request.delete('1.0','end');studio.request.insert('1.0',value)
+   studio.set_request(value)
   else:
    if studio.busy:raise ValueError('Wait for the current edit operation.')
    studio.manager.snapshot(value)
@@ -858,7 +860,8 @@ def run_agent_task(command,output=None,quiet=False,crm_approved=False):
   elif action=='office_status':result=office_status()
   elif action=='repo_add':repository_center(arg or '');result='Repository center opened. Fetch pinned content and review it before importing.'
   elif action=='repo_center':repository_center();result='Repository Skills center opened.'
-  elif action=='self_improve':improvement_studio(arg or '');result='Improve SARU opened. Describe the change, generate and review its source diff, then approve to apply.'
+  elif action=='self_improve':
+   studio=improvement_studio(arg or '');result=studio.status_text()+'\nSay generate saru update to prepare a reviewed proposal. No code has been changed.'
   elif action=='media_player':media_player();result='SARU Media Player opened.'
   elif action=='media_save':
    player=media_player(False);row=player.library.add_youtube(*arg);result='YouTube favourite link saved: '+row['title']
@@ -1478,6 +1481,38 @@ def show_saru_voice():
 def show_saru_settings():
  root.deiconify();root.lift();settings()
 
+def control_own_app(action):
+ if action=='show':show_saru_main();return 'SARU main interface opened.'
+ if action=='hide':
+  orb.deiconify();root.withdraw();return 'SARU main window hidden; floating assistant and configured voice remain running.'
+ if action=='home':root.deiconify();back_home();return 'Returned to SARU home. Unsaved settings were not committed.'
+ if action in ('close_panel','close_improvement'):
+  if action=='close_improvement':
+   panel=improvement_window
+  else:
+   focused=root.focus_get();panel=focused.winfo_toplevel() if focused is not None else None
+  if panel is None or panel is root or panel is orb:
+   if action=='close_improvement':return 'Self-improvement studio is already closed.'
+   back_home();return 'Returned to SARU home.'
+  if not panel.winfo_exists():return 'SARU panel is already closed.'
+  if getattr(panel,'_saru_consent_ui',False):raise ValueError('Use approve or cancel for the current review.')
+  if getattr(panel,'busy',False):raise ValueError('A source operation is running. Wait for it to finish before closing.')
+  closer=getattr(panel,'close',None)
+  if callable(closer):closer()
+  else:
+   callback=panel.protocol('WM_DELETE_WINDOW')
+   if callback:panel.tk.call(callback)
+   else:panel.destroy()
+  return 'Requested SARU panel close.'
+ if action not in ('restart','exit'):raise ValueError('Unknown SARU lifecycle action.')
+ if improvement_window is not None and improvement_window.winfo_exists() and improvement_window.busy:
+  raise ValueError('Wait for the current self-improvement operation before restarting or exiting.')
+ if action=='restart':
+  from saru_restart import schedule_restart
+  schedule_restart(ROOT,os.getpid())
+ root.after(350,exit_saru)
+ return 'SARU restart scheduled after graceful shutdown.' if action=='restart' else 'SARU will exit completely, including voice. Reopen it from the desktop shortcut.'
+
 def exit_saru():
  from wacrm_bridge import local_crm
  local_crm.stop()
@@ -1564,6 +1599,7 @@ def show_dashboard():
  actions=[('WhatsApp CRM',crm_center),('Themes',theme_picker),('AI Chat',chat_window),('Voice: push to talk',live_voice_page),('PC Commands',screen_control),('System Health',pc_health),('Social drafts',lambda:open_saru_browser('https://www.facebook.com/')),('WhatsApp draft',lambda:open_saru_browser('https://web.whatsapp.com/')),('Gmail draft',lambda:open_saru_browser('https://mail.google.com/')),('YouTube Studio',youtube_studio),('Files: summarize',summarize_file),('Website Studio',website_studio),('SARU Office',office_center),('Repository Skills',repository_center),('Developer / REA',rea_manager),('MYRA Companion',myra_center),('Saved memory',lambda:run_agent_task('show notes')),('Owner Profile',profile_page),('API Manager',settings),('Audio Center',audio_center),('Display brightness',lambda:inline_control('brightness')),('Security PIN',security_setup),('Appearance',appearance_center),('Update Center',update_center),('Settings',settings),('Help / commands',lambda:show_dialog('Commands',HELP)),('Shortcuts',create_shortcuts),('Emergency Stop',emergency_stop),('Show/hide floating SARU',toggle_orb),('Create portrait icon',generate_portrait_icon),('SARU Storage & RAM',saru_storage),('Screenshot',lambda:tool('Screenshot')),('Clipboard',lambda:tool('Clipboard')),('Open browser',lambda:open_saru_browser('https://www.google.com/')),('Web search',show_search),('Lock PC',lambda:run_agent_task('lock pc')),('Shutdown',lambda:tool('Shutdown')),('Mute microphone',lambda:voice_hub.toggle_mute()),('Stop voice',lambda:voice_hub.stop()),('Search text',lambda query:send_message('search '+query,active_page.chat_output) if query.strip() else None),('Task Console',autonomous_console),('Open App',open_app_picker),('Set provider',set_provider_inline),('Set home view',set_home_view),('Social Media',social_media_page),('Translator',lambda:open_saru_browser('https://translate.google.com/')),('Calculator',lambda:open_system_tool('Calculator')),('Notepad',lambda:open_system_tool('Notepad')),('Task Manager',lambda:open_system_tool('Task Manager')),('Night Light',open_display_settings),('Eye Care',open_display_settings),('API test',api_test),('Facebook',lambda:open_saru_browser('https://www.facebook.com/')),('Instagram',lambda:open_saru_browser('https://www.instagram.com/')),('TikTok',lambda:open_saru_browser('https://www.tiktok.com/')),('YouTube',lambda:open_saru_browser('https://www.youtube.com/')),('YouTube Player',media_player),('Telegram',lambda:open_saru_browser('https://web.telegram.org/')),('X Twitter',lambda:open_saru_browser('https://x.com/'))]
  available_app_actions={name:callback for name,callback in actions if name not in ('Search text','Set provider','Set home view')}
  available_app_actions.update({'Camera':lambda:personal_hub.handle('camera','open'),'Stop camera':lambda:personal_hub.handle('camera','stop'),'Voice Profiles':lambda:personal_hub.handle('voice_profiles'),'Reminders':lambda:announce_local(personal_hub.handle('reminders')),'Document Editor':lambda:run_agent_task('open document editor',quiet=True)})
+ available_app_actions.update({'Open SARU':lambda:control_own_app('show'),'Hide SARU':lambda:control_own_app('hide'),'Restart SARU':lambda:control_own_app('restart'),'Exit SARU':lambda:control_own_app('exit'),'Close current panel':lambda:control_own_app('close_panel'),'Self improvement status':lambda:announce_local(apply_saru_control(('edit','status')))})
  available_app_actions.update({'Voice Studio':list_voices_dialog,'Test voice':voice_test,'Test microphone':audio_diagnostic,'Models':list_gemini_models,'Change portrait':change_photo,'Change background':change_dashboard,'Change floating portrait':change_orb_photo,'Restore background':reset_dashboard,'Save note':add_note,'Export memory':export_memory,'Dependencies':dependencies_report,'Improve SARU':improvement_studio,'Start voice':lambda:voice_hub.start(),'Stop screen view':lambda:apply_saru_control(('screen_watch','stop')),'Sleep PC':lambda:propose_power_action('sleep')})
  active_page=Dashboard(root,dict(actions,**available_app_actions),status,cfg.get('photo',str(ROOT/'saru_photo.jpg')),show_reference,cfg,TASK_LOG)
  page=active_page

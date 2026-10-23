@@ -1,4 +1,4 @@
-# SARU AI 2.12.0
+# SARU AI 2.13.0
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
 
@@ -27,7 +27,7 @@ Runtime settings, encrypted API keys, memory databases, logs, browser sessions, 
 
 ## Verification
 
-The 2.12.0 desktop update passed 203 regression tests, isolated GUI smoke at three sizes/all four themes, and the bundled Windows setup self-test. These checks do not establish that every external account, physical device or social publishing workflow is configured or acceptance-tested.
+The 2.13.0 desktop update passed 210 regression tests, isolated GUI smoke at three sizes/all four themes, and the bundled Windows setup self-test. These checks do not establish that every external account, physical device or social publishing workflow is configured or acceptance-tested.
 
 ```powershell
 python -m unittest discover -v
@@ -41,3 +41,7 @@ python smoke_gui.py
 Udaya Raj Khanal. The application's editable creator profile contains the supplied contact/social details. See `profiles.py`.
 
 Older specification/audit documents describe development history and requested features; their presence does not mean every requested feature is implemented. Use the current code and validated status above.
+
+## Own-app commands
+
+`open saru`, `hide saru`, `close settings`, `restart saru`, `close saru`. Fully closing SARU also stops voice. Self-improvement requests suggest related existing source files; generation requires source-sharing review and applying an exact diff retains owner verification, backup and rollback. See [OWN_APP_CONTROL.md](OWN_APP_CONTROL.md). Candidate edits are syntax-checked, not automatically functionally tested or unrestricted self-rewriting.

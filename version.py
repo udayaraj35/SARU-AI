@@ -1,2 +1,2 @@
 """Public product version; settings schema versions are independent."""
-VERSION='2.12.0'
+VERSION='2.13.0'
