@@ -40,7 +40,7 @@ try {
  $registered = Get-ItemProperty -LiteralPath $registryPath -ErrorAction SilentlyContinue
  if ($registered -and [IO.Path]::GetFullPath($registered.InstallLocation).TrimEnd('\') -ne $installRoot) { throw 'A different SARU installation is registered. Nothing removed.' }
  $files = @($manifest.files | ForEach-Object { CheckedPath $_ })
- foreach ($name in $manifest.managed_directories) { if ($name -notin @('.venv','.python-runtime','.saru-backups','__pycache__')) { throw 'Unknown managed directory.' } }
+ foreach ($name in $manifest.managed_directories) { if ($name -notin @('.venv','.advanced-env','.python-runtime','.saru-backups','__pycache__')) { throw 'Unknown managed directory.' } }
  $directories = @($manifest.managed_directories | ForEach-Object { CheckedPath $_ })
  foreach ($path in @($files) + @($directories)) { CheckTree $path }
  if ($ValidateOnly) { Write-Output 'Uninstall manifest and path validation passed. No changes made.'; exit 0 }

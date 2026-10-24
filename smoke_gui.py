@@ -44,6 +44,10 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    memory_page.query.set('saffron');memory_page.refresh();assert 'Synthetic saffron preference' in memory_page.output.get('1.0','end')
    memory_page.query.set('');memory_page.kind.set('task');memory_page.refresh();assert 'Synthetic task completed' in memory_page.output.get('1.0','end')
    app['back_home']()
+   app['advanced_center']();root.update_idletasks()
+   assert app['active_page'].__class__.__name__=='AdvancedPanel'
+   assert 'BUNDLED ACTIONS' in app['active_page'].details.get('1.0','end')
+   app['back_home']()
    with patch.dict(app,{'authorize_source_edit':Mock(return_value=False)}):
     studio=app['improvement_studio']('fix voice interruptions');root.update_idletasks()
     assert studio.winfo_exists()
@@ -233,7 +237,7 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    assert 'test-only-key' not in Path(temp,'settings.json').read_text(encoding='utf8')
    print('PASS: neon dashboard, 8 Settings tabs, validation/save, six page/back routes, three sizes, secure save')
   finally:
-   app['personal_hub'].close();app['voice_hub'].close();app['con'].close();root.destroy()
+   app['advanced_manager'].close();app['personal_hub'].close();app['voice_hub'].close();app['con'].close();root.destroy()
  tk.Misc.mainloop=smoke
  try:
   import runpy

@@ -33,6 +33,7 @@ def normalize_request(command):
 
 def parse_command(command):
  q=normalize_request(command);low=q.casefold()
+ if low in ('advanced workspace','open advanced workspace','open advanced','mark lvi','open mark lvi','advanced tools'):return 'advanced_workspace',None
  if low in ('whatsapp crm','open whatsapp crm','wacrm','open wacrm','crm setup'):return 'wacrm_panel',None
  if low in ('crm contacts','crm inbox','crm status'):return 'wacrm_read',{'crm contacts':'contacts','crm inbox':'conversations','crm status':'me'}[low]
  crm_send=re.fullmatch(r'crm send to (\+[1-9]\d{7,14}):\s*(.{1,4096})',q,re.I)

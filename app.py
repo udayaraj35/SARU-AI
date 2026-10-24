@@ -65,6 +65,13 @@ def memory_center():
  if active_page is not None:active_page.destroy()
  active_page=MemoryPanel(root,memory_journal,DATA,back_home,add_note,export_memory)
  apply_theme(active_page,cfg.get('theme','Neon Rose'));apply_text_scale(active_page,cfg.get('ui_text_scale',100))
+
+def advanced_center():
+ from advanced_ui import AdvancedPanel
+ global active_page
+ if active_page is not None:active_page.destroy()
+ active_page=AdvancedPanel(root,advanced_manager,back_home)
+ apply_theme(active_page,cfg.get('theme','Neon Rose'));apply_text_scale(active_page,cfg.get('ui_text_scale',100))
 root=boot.root;root.title('SARU AI '+VERSION+' — Personal PC Assistant');root.geometry('1280x790');root.minsize(890,570);root.configure(bg='#090914')
 def toggle_fullscreen(event=None):
  root.attributes('-fullscreen',not bool(root.attributes('-fullscreen')));return 'break'
@@ -236,6 +243,8 @@ cancel_requests=threading.Event()
 request_generation=0
 
 def emergency_stop():
+ workspace=globals().get('advanced_manager')
+ if workspace:workspace.resume=False;workspace.stop()
  global request_generation
  request_generation+=1;cancel_requests.set()
  hub=globals().get('voice_hub')
@@ -894,6 +903,7 @@ def run_agent_task(command,output=None,quiet=False,crm_approved=False):
   elif action=='desktop_task':launch_named_application(arg[0],True,arg[1]);result='Opening the requested app in PC Control. Review the real screen, then choose the next input step.'
   elif action=='browser':
    launch_named_application('Google Chrome' if arg=='chrome' else 'Microsoft Edge');result=arg.title()+' खोज्दै छु। Window भेटिएपछि परिणाम आउँछ।'
+  elif action=='advanced_workspace':advanced_center();result='Advanced workspace controls opened. Choose Open workspace for the separate engine.'
   elif action=='office':office_center(arg or '');result='SARU Office opened. Review the selected agents, resources and provider before starting.'
   elif action=='office_status':result=office_status()
   elif action=='repo_add':repository_center(arg or '');result='Repository center opened. Fetch pinned content and review it before importing.'
@@ -1197,7 +1207,7 @@ def handle_conversation_turn(user_text,assistant_text):
  from voice_requests import voice_request,feature_request
  action,arg=voice_request(user_text)
  if action:
-  immediate=action in ('outbox_add','outbox_list','outbox_cancel','ui_control','help','status','office_status','calculate','app_picker','reminders') or (action=='camera' and arg=='stop') or (action=='saru_control' and arg in (('voice','stop'),('screen_watch','stop'),('auto_listen',False),('remember_conversations',False),('control_help',None)))
+  immediate=action in ('advanced_workspace','outbox_add','outbox_list','outbox_cancel','ui_control','help','status','office_status','calculate','app_picker','reminders') or (action=='camera' and arg=='stop') or (action=='saru_control' and arg in (('voice','stop'),('screen_watch','stop'),('auto_listen',False),('remember_conversations',False),('control_help',None)))
   if immediate:
    output=getattr(active_page,'chat_output',None)
    result=run_agent_task(user_text,output,quiet=True)
@@ -1293,7 +1303,7 @@ def settings():
     else:voice_hub.stop()
   if cfg.get('orb_visible',True):orb.deiconify()
   else:orb.withdraw()
- actions={'API test':api_test,'Models':list_gemini_models,'Audio Center':audio_center,'Voice Studio':list_voices_dialog,'Test voice':voice_test,'Test microphone':audio_diagnostic,'Change portrait':change_photo,'Change background':change_dashboard,'Change floating portrait':change_orb_photo,'Create portrait icon':generate_portrait_icon,'Shortcuts':create_shortcuts,'Restore background':reset_dashboard,'Brightness':lambda:show_control('brightness'),'PC Health':pc_health,'Connectivity':connectivity_check,'Commands':autonomous_console,'Emergency Stop':emergency_stop,'View notes':memory_center,'Save note':add_note,'Export memory':export_memory,'Security PIN':security_setup,'SARU Office':office_center,'Repository Skills':repository_center,'Improve SARU':improvement_studio,'Update Center':update_center,'MYRA Companion':myra_center,'Dependencies':dependencies_report,'Social drafts':agent_center,'Gmail draft':gmail_studio,'YouTube Studio':youtube_studio,'Website Studio':website_studio,'Developer / REA':rea_manager,'Owner Profile':profile_page,'Help / commands':lambda:show_dialog('Commands',HELP),'Apply appearance':apply_appearance,'SARU Storage & RAM':saru_storage,'Live Voice':live_voice_page}
+ actions={'Advanced workspace':advanced_center,'API test':api_test,'Models':list_gemini_models,'Audio Center':audio_center,'Voice Studio':list_voices_dialog,'Test voice':voice_test,'Test microphone':audio_diagnostic,'Change portrait':change_photo,'Change background':change_dashboard,'Change floating portrait':change_orb_photo,'Create portrait icon':generate_portrait_icon,'Shortcuts':create_shortcuts,'Restore background':reset_dashboard,'Brightness':lambda:show_control('brightness'),'PC Health':pc_health,'Connectivity':connectivity_check,'Commands':autonomous_console,'Emergency Stop':emergency_stop,'View notes':memory_center,'Save note':add_note,'Export memory':export_memory,'Security PIN':security_setup,'SARU Office':office_center,'Repository Skills':repository_center,'Improve SARU':improvement_studio,'Update Center':update_center,'MYRA Companion':myra_center,'Dependencies':dependencies_report,'Social drafts':agent_center,'Gmail draft':gmail_studio,'YouTube Studio':youtube_studio,'Website Studio':website_studio,'Developer / REA':rea_manager,'Owner Profile':profile_page,'Help / commands':lambda:show_dialog('Commands',HELP),'Apply appearance':apply_appearance,'SARU Storage & RAM':saru_storage,'Live Voice':live_voice_page}
  active_page=SettingsPanel(root,cfg,save,back_home,actions)
  apply_theme(active_page,cfg.get('theme','Neon Rose'));apply_text_scale(active_page,cfg.get('ui_text_scale',100))
 
@@ -1557,6 +1567,7 @@ def control_own_app(action):
  return 'SARU restart scheduled after graceful shutdown.' if action=='restart' else 'SARU will exit completely, including voice. Reopen it from the desktop shortcut.'
 
 def exit_saru():
+ advanced_manager.close()
  from wacrm_bridge import local_crm
  local_crm.stop()
  personal_hub.close()
@@ -1587,6 +1598,7 @@ def close():
  if choice is True:
   orb.deiconify();cfg['orb_visible']=True;save();root.withdraw()
  elif choice is False:
+  advanced_manager.close()
   if media_player_instance:media_player_instance.close()
   voice_hub.close()
   emergency_stop()
@@ -1639,7 +1651,7 @@ def show_dashboard():
  global active_page,available_app_actions
  if active_page is not None:active_page.destroy()
  voice_hub.sink=None
- actions=[('WhatsApp CRM',crm_center),('Themes',theme_picker),('AI Chat',chat_window),('Voice: push to talk',live_voice_page),('PC Commands',screen_control),('System Health',pc_health),('Social drafts',lambda:open_saru_browser('https://www.facebook.com/')),('WhatsApp draft',lambda:open_saru_browser('https://web.whatsapp.com/')),('Gmail draft',lambda:open_saru_browser('https://mail.google.com/')),('YouTube Studio',youtube_studio),('Files: summarize',summarize_file),('Website Studio',website_studio),('SARU Office',office_center),('Repository Skills',repository_center),('Developer / REA',rea_manager),('MYRA Companion',myra_center),('Saved memory',memory_center),('Owner Profile',profile_page),('API Manager',settings),('Audio Center',audio_center),('Display brightness',lambda:inline_control('brightness')),('Security PIN',security_setup),('Appearance',appearance_center),('Update Center',update_center),('Settings',settings),('Help / commands',lambda:show_dialog('Commands',HELP)),('Shortcuts',create_shortcuts),('Emergency Stop',emergency_stop),('Show/hide floating SARU',toggle_orb),('Create portrait icon',generate_portrait_icon),('SARU Storage & RAM',saru_storage),('Screenshot',lambda:tool('Screenshot')),('Clipboard',lambda:tool('Clipboard')),('Open browser',lambda:open_saru_browser('https://www.google.com/')),('Web search',show_search),('Lock PC',lambda:run_agent_task('lock pc')),('Shutdown',lambda:tool('Shutdown')),('Mute microphone',lambda:voice_hub.toggle_mute()),('Stop voice',lambda:voice_hub.stop()),('Search text',lambda query:send_message('search '+query,active_page.chat_output) if query.strip() else None),('Task Console',autonomous_console),('Open App',open_app_picker),('Set provider',set_provider_inline),('Set home view',set_home_view),('Social Media',social_media_page),('Translator',lambda:open_saru_browser('https://translate.google.com/')),('Calculator',lambda:open_system_tool('Calculator')),('Notepad',lambda:open_system_tool('Notepad')),('Task Manager',lambda:open_system_tool('Task Manager')),('Night Light',open_display_settings),('Eye Care',open_display_settings),('API test',api_test),('Facebook',lambda:open_saru_browser('https://www.facebook.com/')),('Instagram',lambda:open_saru_browser('https://www.instagram.com/')),('TikTok',lambda:open_saru_browser('https://www.tiktok.com/')),('YouTube',lambda:open_saru_browser('https://www.youtube.com/')),('YouTube Player',media_player),('Telegram',lambda:open_saru_browser('https://web.telegram.org/')),('X Twitter',lambda:open_saru_browser('https://x.com/'))]
+ actions=[('Advanced workspace',advanced_center),('WhatsApp CRM',crm_center),('Themes',theme_picker),('AI Chat',chat_window),('Voice: push to talk',live_voice_page),('PC Commands',screen_control),('System Health',pc_health),('Social drafts',lambda:open_saru_browser('https://www.facebook.com/')),('WhatsApp draft',lambda:open_saru_browser('https://web.whatsapp.com/')),('Gmail draft',lambda:open_saru_browser('https://mail.google.com/')),('YouTube Studio',youtube_studio),('Files: summarize',summarize_file),('Website Studio',website_studio),('SARU Office',office_center),('Repository Skills',repository_center),('Developer / REA',rea_manager),('MYRA Companion',myra_center),('Saved memory',memory_center),('Owner Profile',profile_page),('API Manager',settings),('Audio Center',audio_center),('Display brightness',lambda:inline_control('brightness')),('Security PIN',security_setup),('Appearance',appearance_center),('Update Center',update_center),('Settings',settings),('Help / commands',lambda:show_dialog('Commands',HELP)),('Shortcuts',create_shortcuts),('Emergency Stop',emergency_stop),('Show/hide floating SARU',toggle_orb),('Create portrait icon',generate_portrait_icon),('SARU Storage & RAM',saru_storage),('Screenshot',lambda:tool('Screenshot')),('Clipboard',lambda:tool('Clipboard')),('Open browser',lambda:open_saru_browser('https://www.google.com/')),('Web search',show_search),('Lock PC',lambda:run_agent_task('lock pc')),('Shutdown',lambda:tool('Shutdown')),('Mute microphone',lambda:voice_hub.toggle_mute()),('Stop voice',lambda:voice_hub.stop()),('Search text',lambda query:send_message('search '+query,active_page.chat_output) if query.strip() else None),('Task Console',autonomous_console),('Open App',open_app_picker),('Set provider',set_provider_inline),('Set home view',set_home_view),('Social Media',social_media_page),('Translator',lambda:open_saru_browser('https://translate.google.com/')),('Calculator',lambda:open_system_tool('Calculator')),('Notepad',lambda:open_system_tool('Notepad')),('Task Manager',lambda:open_system_tool('Task Manager')),('Night Light',open_display_settings),('Eye Care',open_display_settings),('API test',api_test),('Facebook',lambda:open_saru_browser('https://www.facebook.com/')),('Instagram',lambda:open_saru_browser('https://www.instagram.com/')),('TikTok',lambda:open_saru_browser('https://www.tiktok.com/')),('YouTube',lambda:open_saru_browser('https://www.youtube.com/')),('YouTube Player',media_player),('Telegram',lambda:open_saru_browser('https://web.telegram.org/')),('X Twitter',lambda:open_saru_browser('https://x.com/'))]
  available_app_actions={name:callback for name,callback in actions if name not in ('Search text','Set provider','Set home view')}
  available_app_actions.update({'Camera':lambda:personal_hub.handle('camera','open'),'Stop camera':lambda:personal_hub.handle('camera','stop'),'Voice Profiles':lambda:personal_hub.handle('voice_profiles'),'Reminders':lambda:announce_local(personal_hub.handle('reminders')),'Document Editor':lambda:run_agent_task('open document editor',quiet=True)})
  available_app_actions.update({'Open SARU':lambda:control_own_app('show'),'Hide SARU':lambda:control_own_app('hide'),'Restart SARU':lambda:control_own_app('restart'),'Exit SARU':lambda:control_own_app('exit'),'Close current panel':lambda:control_own_app('close_panel'),'Self improvement status':lambda:announce_local(apply_saru_control(('edit','status')))})
@@ -1693,6 +1705,8 @@ style.map('TNotebook.Tab',background=[('selected','#702455'),('active','#293e62'
 style.configure('TCombobox',fieldbackground='#081225',background='#132642',foreground='#edf4ff',arrowcolor='#16cafa')
 from voice_hub import VoiceHub
 voice_hub=VoiceHub(root,cfg,voice_visual_event,preferences=lambda:'\n'.join(title+': '+text for title,text in notes())+selected_reference(DATA,cfg)+'\nRecent saved conversation:\n'+'\n'.join(role+': '+text[:500] for role,text in history()[-8:]),memory_lookup=lambda query:live_lookup(DB,cfg,query))
+from advanced_workspace import AdvancedWorkspace
+advanced_manager=AdvancedWorkspace(ROOT,DATA,cfg,root,voice_hub,announce_local)
 from personal_hub import PersonalHub
 personal_hub=PersonalHub(root,DATA,cfg,offer_pending_action,announce_local,speak,voice_hub)
 from ui_control import UiControl

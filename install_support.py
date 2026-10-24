@@ -54,6 +54,12 @@ def source_files(source):
  if guide.exists():
   for item in guide.rglob('*'):
    if item.is_file() and not item.is_symlink():yield item.relative_to(source)
+ bundle=source/'mark_suite'
+ if (bundle/'SOURCE_INVENTORY.json').is_file():
+  from advanced_workspace import bundle_manifest
+  manifest=bundle_manifest(source)
+  for entry in manifest['files']:yield Path('mark_suite')/entry['path']
+  yield Path('mark_suite/SOURCE_INVENTORY.json')
 
 def validate_target(target,source):
  target=Path(target).resolve();source=Path(source).resolve()
@@ -90,5 +96,5 @@ def write_manifest(target,files):
  names=sorted(set(old+[str(p).replace('\\','/') for p in files]+['Start SARU AI.cmd','uninstall.ps1',MANIFEST]))
  for name in names:
   if Path(name).is_absolute() or '..' in Path(name).parts or ':' in name:raise ValueError('Unsafe manifest path')
- data={'app_id':APP_ID,'version':VERSION,'install_location':str(target),'files':names,'managed_directories':['.venv','.python-runtime','.saru-backups','__pycache__']}
+ data={'app_id':APP_ID,'version':VERSION,'install_location':str(target),'files':names,'managed_directories':['.venv','.advanced-env','.python-runtime','.saru-backups','__pycache__']}
  temporary=target/(MANIFEST+'.tmp');temporary.write_text(json.dumps(data,indent=2),encoding='utf8');temporary.replace(target/MANIFEST)

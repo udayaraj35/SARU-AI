@@ -106,7 +106,7 @@ class SettingsPanel(tk.Frame):
   field(updates,'saru_release_repo','Official SARU repository (owner/repo)')
   for title in ['SARU Office','Repository Skills','Improve SARU','Update Center','MYRA Companion','Dependencies']:button(updates,title,actions[title]).pack(fill='x',padx=16,pady=6)
   tools=group('Tools','CONNECTED WORKFLOWS')
-  for title in ['Social drafts','Gmail draft','YouTube Studio','Website Studio','Developer / REA','Owner Profile','Help / commands']:button(tools,title,actions[title]).pack(fill='x',padx=16,pady=5)
+  for title in ['Advanced workspace','Social drafts','Gmail draft','YouTube Studio','Website Studio','Developer / REA','Owner Profile','Help / commands']:button(tools,title,actions[title]).pack(fill='x',padx=16,pady=5)
   foot=tk.Frame(self,bg='#09152a');foot.pack(fill='x',padx=20,pady=12)
   button(foot,'Save settings',self.commit,True).pack(side='right',padx=10,pady=5)
   label(foot,'Local settings • Changes preserved across updates',fg=MUTED).pack(side='left',padx=10)

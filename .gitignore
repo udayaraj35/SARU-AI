@@ -16,6 +16,12 @@ token*.json
 client_secret*.json
 # Local environments, caches, vendor installs and browser profiles
 .venv/
+.advanced-env/
+mark_suite/config/*.json
+mark_suite/memory/*.json
+mark_suite/certs/
+mark_suite/uploads/
+mark_suite/providers/voices/
 venv/
 __pycache__/
 *.py[cod]
