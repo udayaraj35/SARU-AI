@@ -1,6 +1,7 @@
 """Read actual local telemetry and supported Windows audio/display endpoints."""
 import os
 from pathlib import Path
+from network_status import status as internet_status
 import psutil
 
 def endpoint(kind='speaker'):
@@ -38,7 +39,7 @@ def set_control(name,value):
 def snapshot():
  adapters=[name for name,info in psutil.net_if_stats().items() if info.isup and not name.lower().startswith(('loopback','lo'))]
  battery=psutil.sensors_battery()
- return {'battery':battery.percent if battery else None,'cpu':psutil.cpu_percent(),'ram':psutil.virtual_memory().percent,'disk':psutil.disk_usage(Path.home().anchor).percent,'adapters':adapters,**read_controls()}
+ return {'battery':battery.percent if battery else None,'cpu':psutil.cpu_percent(),'ram':psutil.virtual_memory().percent,'disk':psutil.disk_usage(Path.home().anchor).percent,'adapters':adapters,**internet_status.snapshot(),**read_controls()}
 
 
 def device_request(operation='read',name=None,value=None):
@@ -56,7 +57,7 @@ def device_request(operation='read',name=None,value=None):
 def metrics_snapshot():
  adapters=[name for name,info in psutil.net_if_stats().items() if info.isup and not name.lower().startswith(('loopback','lo'))]
  battery=psutil.sensors_battery()
- return {'battery':battery.percent if battery else None,'cpu':psutil.cpu_percent(),'ram':psutil.virtual_memory().percent,'disk':psutil.disk_usage(Path.home().anchor).percent,'adapters':adapters}
+ return {'battery':battery.percent if battery else None,'cpu':psutil.cpu_percent(),'ram':psutil.virtual_memory().percent,'disk':psutil.disk_usage(Path.home().anchor).percent,'adapters':adapters,**internet_status.snapshot()}
 
 def isolated_snapshot():
  result=metrics_snapshot()

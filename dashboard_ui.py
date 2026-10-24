@@ -53,6 +53,8 @@ class Dashboard(tk.Frame):
    self.chat_output.insert('end',value[1]);self.chat_output.see('end')
   elif kind=='conversation_turn':
    if self.stream_role:self.chat_output.insert('end','\n\n');self.stream_role=None
+  elif kind=='wake_wait':
+   self.voice_state.configure(text='सुन्दैछु • हरेक request सुरु गर्दा SARU भन्नुहोस्।')
   elif kind=='error':
    self.drawer_open=True;self.layout_dock();self.chat_output.insert('end','Voice setup: '+value+'\n');self.chat_output.see('end')
   elif kind in ('input_level','output_level'):
@@ -151,9 +153,9 @@ class Dashboard(tk.Frame):
   if getattr(self,'hero_theme',None)!=theme:
    self.hero_theme=theme;self.resize_hero(self.ring.winfo_width(),self.ring.winfo_height(),self.cfg.get('photo'))
   self.refresh_activity()
-  if 'adapters' in data:
-   self.online.configure(text='● Adapter up' if data['adapters'] else '● Offline')
-   self.network.configure(text='Adapter up: '+', '.join(data['adapters']) if data['adapters'] else 'No active network adapter • Offline',fg=MUTED)
+  if 'internet_online' in data:
+   online=data['internet_online'];self.online.configure(text='● Online' if online is True else '● Offline' if online is False else '● Checking',fg='#00e676' if online is True else '#ff3b30' if online is False else MUTED)
+   self.network.configure(text=data.get('internet_detail','Internet status unavailable'),fg=MUTED)
   for name,scale in self.scales.items():
    if name not in data or name in self.dragging or name in self.control_versions:continue
    value=data[name]

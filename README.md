@@ -1,4 +1,4 @@
-# SARU AI 2.13.0
+# SARU AI 2.14.0
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
 
@@ -27,7 +27,7 @@ Runtime settings, encrypted API keys, memory databases, logs, browser sessions, 
 
 ## Verification
 
-The 2.13.0 desktop update passed 210 regression tests, isolated GUI smoke at three sizes/all four themes, and the bundled Windows setup self-test. These checks do not establish that every external account, physical device or social publishing workflow is configured or acceptance-tested.
+The 2.14.0 desktop update passed 218 regression tests, isolated GUI smoke at three sizes/all four themes, and the bundled Windows setup self-test. These checks do not establish that every external account, physical device or social publishing workflow is configured or acceptance-tested.
 
 ```powershell
 python -m unittest discover -v
@@ -45,3 +45,7 @@ Older specification/audit documents describe development history and requested f
 ## Own-app commands
 
 `open saru`, `hide saru`, `close settings`, `restart saru`, `close saru`. Fully closing SARU also stops voice. Self-improvement requests suggest related existing source files; generation requires source-sharing review and applying an exact diff retains owner verification, backup and rollback. See [OWN_APP_CONTROL.md](OWN_APP_CONTROL.md). Candidate edits are syntax-checked, not automatically functionally tested or unrestricted self-rewriting.
+
+## Voice and connectivity fix
+
+2.14.0 preserves audio received before wake transcription, reports local command results through the selected Live voice and keeps provider errors visible. Warm-romantic conversation supports natural Nepali delivery. Green Online/red Offline use cached Internet reachability checks rather than adapter link state. MYRA voice equivalence is not verified; no proprietary engine or credentials are copied. See [VOICE_REPLY_CONNECTIVITY.md](VOICE_REPLY_CONNECTIVITY.md). A synthetic real-account Gemini Live test returned Aoede audio without microphone recording or personal memory.

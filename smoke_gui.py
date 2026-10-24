@@ -26,6 +26,11 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
     app['send_message']('एप खोल्नुहोस्',app['active_page'].chat_output)
     route.assert_called_once_with('एप खोल्नुहोस्',app['active_page'].chat_output);cloud.assert_not_called()
    app['cfg']['speak']=False
+   page=app['active_page']
+   page.render({'internet_online':False,'internet_detail':'Internet not reachable','adapters':['Wi-Fi']});assert page.online.cget('text')=='● Offline' and page.online.cget('fg')=='#ff3b30'
+   page.render({'internet_online':True,'internet_detail':'Internet connection verified'});assert page.online.cget('text')=='● Online' and page.online.cget('fg')=='#00e676'
+   with patch.object(app['voice_hub'],'speak_reply',return_value=True) as feedback:
+    app['announce_local']('Local command result for GUI test');feedback.assert_called_once_with('Local command result for GUI test')
    # Own-app commands remain local, and planning does not request owner verification.
    with patch.dict(app,{'authorize_source_edit':Mock(return_value=False)}):
     studio=app['improvement_studio']('fix voice interruptions');root.update_idletasks()

@@ -32,7 +32,7 @@ ROOT=Path(__file__).resolve().parent
 DATA=Path(os.environ['SARU_DATA_DIR']) if os.getenv('SARU_DATA_DIR') else Path(os.getenv('APPDATA',str(Path.home())))/'SARU_AI'
 DATA.mkdir(parents=True,exist_ok=True)
 SETTINGS=DATA/'settings.json';DB=DATA/'memory.db'
-DEFAULT={'auto_listen':True,'live_model':'gemini-3.8-live','live_voice':'Aoede','saru_release_repo':'','provider':'Gemini','model':'gemini-2.5-flash','keys':{},'voice_language':'en-US','speak':True,'orb_size':82,'orb_x':100,'orb_y':100,'autostart':False,'photo':str(ROOT/'saru_photo.jpg'),'voice_gender':'Female','voice_rate':170,'voice_id':'','custom_url':'https://api.openai.com/v1','provider_models':{'Gemini':'gemini-2.5-flash','OpenAI':'gpt-4o-mini','OpenRouter':'openai/gpt-4o-mini','Custom':'gpt-4o-mini'},'mic_device':-1,'dashboard_image':'','orb_photo':'','owner_name':'Boss','wake_greeting':'हजुर सर, भन्नुहोस्। म सुन्दैछु।'}
+DEFAULT={'auto_listen':True,'live_model':'gemini-3.8-live','live_voice':'Aoede','saru_release_repo':'','provider':'Gemini','model':'gemini-2.5-flash','keys':{},'voice_language':'ne-NP','speak':True,'orb_size':82,'orb_x':100,'orb_y':100,'autostart':False,'photo':str(ROOT/'saru_photo.jpg'),'voice_gender':'Female','voice_rate':170,'voice_id':'','custom_url':'https://api.openai.com/v1','provider_models':{'Gemini':'gemini-2.5-flash','OpenAI':'gpt-4o-mini','OpenRouter':'openai/gpt-4o-mini','Custom':'gpt-4o-mini'},'mic_device':-1,'dashboard_image':'','orb_photo':'','owner_name':'Boss','wake_greeting':'हजुर सर, भन्नुहोस्। म सुन्दैछु।'}
 store=SettingsStore(SETTINGS,DEFAULT)
 try:cfg=store.load()
 except SettingsError as exc:
@@ -60,6 +60,10 @@ def announce_local(text):
  status.set(text[:180])
  output=getattr(globals().get('active_page'),'chat_output',None)
  if output is not None and output.winfo_exists():output.insert('end','SARU: '+text+'\n\n');output.see('end')
+ hub=globals().get('voice_hub')
+ if hub:
+  try:hub.speak_reply(text)
+  except Exception:status.set('Voice reply unavailable; result is visible in chat.')
 
 def clear_pending_bar():
  global pending_bar
@@ -77,8 +81,7 @@ def process_pending_reply(text):
   result=item['callback']()
   if isinstance(result,str):
    announce_local(result)
-   hub=globals().get('voice_hub')
-   if hub and hub.engine and hub.engine.active:hub.engine.send_text('LOCAL SARU STATUS: The approved command returned a result displayed in SARU. Briefly acknowledge that the local status was updated, without inventing task success. The result may require the owner to inspect an error or configuration.')
+
  except Exception as exc:announce_local('काम पूरा भएन: '+str(exc))
  return True
 
@@ -92,8 +95,6 @@ def offer_pending_action(description,callback,seconds=120):
  tk.Label(pending_bar,text=description,bg='#0b1930',fg='white',font=('Segoe UI',11,'bold'),wraplength=max(500,root.winfo_width()-100),justify='left',height=2).pack(fill='x',padx=12,pady=6)
  field=tk.Entry(pending_bar,bg='#071226',fg='white',insertbackground='white',font=('Segoe UI',12));field.pack(fill='x',padx=12,pady=4)
  field.insert(0,'');field.bind('<Return>',lambda event:process_pending_reply(field.get()));field.focus_set();pending_bar.lift()
- hub=globals().get('voice_hub')
- if hub and hub.engine and hub.engine.active:hub.engine.send_text('SARU application has one exact proposal visible on screen for the owner last request. Ask them briefly to say हुन्छ / OK to approve that visible proposal or cancel. Do not execute or claim completion yourself.')
  def expire():
   item=pending_actions.peek()
   if item is None:clear_pending_bar()
@@ -328,7 +329,14 @@ def speak(text, voice_id=None):
   engine.say(text[:2000]);engine.runAndWait();engine.stop()
  except Exception as exc:root.after(0,lambda exc=exc:status.set('Voice playback unavailable: '+str(exc)[:80]))
 def voice_test():
- threading.Thread(target=speak,args=('Hello Boss! I am SARU AI. How can I help you today?',),daemon=True).start()
+ hub=globals().get('voice_hub')
+ if not hub:return
+ if not cfg.get('keys',{}).get('Gemini'):
+  announce_local('Cloud voice preview needs your Gemini key in Settings. Windows voice preview is separate in Voice Studio.');return
+ hub.start()
+ if hub.speak_reply('हेलो माया, म सारु हुँ। तिमीलाई सुन्दैछु। आजको दिन कस्तो भयो?'):
+  status.set('Testing selected cloud voice: '+cfg.get('live_voice','Aoede'))
+
 def list_voices_dialog():
  w=tk.Toplevel(root);w.title('SARU Voice Studio — Preview Voices');w.geometry('620x430');w.configure(bg='#14111b')
  tk.Label(w,text='Select installed Windows voice • Preview • Save',bg='#14111b',fg='#ff648c',font=('Segoe UI',16,'bold')).pack(pady=12)
@@ -1162,8 +1170,7 @@ def handle_conversation_turn(user_text,assistant_text):
   if immediate:
    output=getattr(active_page,'chat_output',None)
    result=run_agent_task(user_text,output,quiet=True)
-   if result and voice_hub.engine and voice_hub.engine.active:
-    voice_hub.engine.send_text('LOCAL SARU COMMAND RESULT (application status, not a new owner command): '+result+'. Briefly report only this status. Normal installed-app launch is supported by the local launcher; do not give a generic no-PC-access refusal or claim success beyond this result.')
+   if result:voice_hub.speak_reply(result)
   else:propose_owner_command(user_text)
  elif feature_request(user_text):
   question='Boss, I can investigate this as a SARU improvement. May I prepare a proposal for your review? Nothing will be changed automatically.'
@@ -1181,10 +1188,11 @@ def voice_visual_event(kind,value):
    if value.active:root.after(100,check_stopped)
    elif companion.winfo_exists() and companion.state_name=='STOPPING':companion.set_state('STOPPED')
   root.after(100,check_stopped)
- elif kind=='state':companion.set_state(value);status.set('Voice: '+value)
+ elif kind=='state':companion.set_state(value);status.set(('Voice error: '+voice_hub.last_error[:160]) if value=='ERROR' and getattr(voice_hub,'last_error','') else 'Voice: '+value)
  elif kind=='input_level':companion.set_state('LISTENING',value)
  elif kind=='output_level':companion.set_state('SPEAKING',value)
- elif kind=='error':companion.set_state('ERROR')
+ elif kind=='wake_wait':status.set('सुन्दैछु • हरेक request सुरु गर्दा SARU भन्नुहोस्।')
+ elif kind=='error':companion.set_state('ERROR');status.set('Voice error: '+str(value)[:160])
 
 def social_media_page():
  from reference_widgets import NeonButton

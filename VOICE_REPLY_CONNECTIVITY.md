@@ -1,0 +1,13 @@
+# Voice replies, companion style and Internet indicator — 2.14.0
+
+The dashboard layout is unchanged. Online is now green only after a cached HTTPS Internet reachability check succeeds; Offline is red when both probes fail. Adapter link state alone no longer claims Internet access. Checks run in the telemetry worker, are bounded by timeouts, and are cached for 30 seconds. Redirect/captive-login pages do not count as a successful probe. Online does not establish AI API quota or account access.
+
+Live command-result announcements now use the current Gemini Live session and its selected voice, rather than suppressing results or switching to a Windows TTS voice. Result replies wait until the preceding model turn completes and do not execute a model-generated command. Cloud voice preview uses this same path. Windows voices in Voice Studio remain explicitly separate classic previews.
+
+Model audio that precedes its input transcript is buffered until the per-utterance wake phrase can be verified. Authorized audio is preserved; unaddressed background audio is discarded without command/history authorization. Cumulative transcription and a split SARU token are handled. If a wake phrase is missing, a visible hint asks the user to begin each request with SARU. This remains a wake phrase, not speaker authentication. Provider errors remain visible instead of immediately being hidden by STOPPED.
+
+The warm-romantic style now explicitly supports natural Nepali affection and expressive conversation without imposing one short reply on every request. The owner-selected style remains configurable. The Aoede cloud voice is pinned by the saved setting and is not randomized. The local MYRA configuration exposed only a Nepali language setting, not a confirmed voice identifier; identical proprietary MYRA sound is not claimed, and no MYRA code or keys are copied.
+
+A real saved-account Gemini 3.8 Live test returned Aoede PCM audio and output transcription for a synthetic Nepali greeting. No microphone recording, personal memory or MYRA credentials were used in that test. Real user pronunciation, speaker acoustics and the owner's perception of similarity still require actual conversation. The tests also cover audio arriving before wake transcription, rejected background voice, local command feedback and connectivity caching/captive redirects.
+
+Reference: https://ai.google.dev/gemini-api/docs/live-api/capabilities
