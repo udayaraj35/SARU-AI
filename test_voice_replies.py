@@ -24,6 +24,7 @@ class ReplyTests(unittest.IsolatedAsyncioTestCase):
     for row in rows:
      yield response(row)
      if row.get('before_complete'):self.no_early_reply=not sent
+     if row.get('expect_played') and engine.queue_playback.await_count==0:raise AssertionError('Confirmed wake must not wait until the entire answer finishes.')
     if not queued:finished.set();await asyncio.Event().wait()
     row=await pending.get();yield response(row);finished.set();await asyncio.Event().wait()
   session=Session()
@@ -47,7 +48,7 @@ class ReplyTests(unittest.IsolatedAsyncioTestCase):
    try:await task
    except asyncio.CancelledError:pass
  async def test_audio_and_transcript_before_wake_are_recovered(self):
-  events,count,_,_=await self.exercise([{'audio':True,'output':'म सुन्दैछु।'},{'input':'SARU'},{'input':'hello','finished':True,'audio':True,'complete':True}])
+  events,count,_,_=await self.exercise([{'audio':True,'output':'म सुन्दैछु।'},{'input':'SARU','expect_played':True},{'input':'hello','finished':True,'audio':True,'complete':True}])
   self.assertEqual(count,2);self.assertIn(('conversation_turn',('SARU hello','म सुन्दैछु।')),events)
   self.assertIn(('transcript',('SARU','म सुन्दैछु।')),events)
  async def test_background_audio_is_never_released(self):

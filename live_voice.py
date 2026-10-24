@@ -179,7 +179,7 @@ class LiveVoice:
         complete=bool(getattr(content,'turn_complete',False))
         # Network audio can precede its transcript. Preserve it until the owner
         # wake phrase is confirmed; never authorize background speech by timeout.
-        decided=input_finished or complete or not self.settings.get('wake_word_required',True) or (self.typed_reply_pending and not user_turn)
+        decided=authorized or input_finished or complete or not self.settings.get('wake_word_required',True)
         if local_command:
          self.playback.clear();deferred.clear();deferred_size=0
         elif authorized and decided:
