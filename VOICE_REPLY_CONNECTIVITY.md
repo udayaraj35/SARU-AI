@@ -1,4 +1,8 @@
-# Voice replies, companion style and Internet indicator — 2.14.0
+# Voice replies, companion style and Internet indicator — 2.14.1
+
+The 2.14.1 reply repair isolates explicitly queued text/result replies from in-flight room microphone transcripts. Background input cannot replace their authorization, silence their audio, enter their saved history or run a command. Capture and transmission pause during these explicitly requested replies; normal wake-gated listening resumes after completion. Normal spoken turns retain the per-request SARU prefix. Completed ordinary chat requests also route their speech to the active Live session instead of falling silent if Live voice starts before the text request completes.
+
+Validation: 20 voice/wake regression tests, including an in-flight background-command transcript during an explicit reply, and the isolated GUI smoke test. A synthetic spoken greeting and a separate synthetic result reply were generated with the owner's configured Live account and rendered through the selected PC speaker callback, without recording the microphone or sending saved personal notes. These checks do not establish recognition of the owner's real pronunciation or confirm that the owner heard the sound.
 
 The dashboard layout is unchanged. Online is now green only after a cached HTTPS Internet reachability check succeeds; Offline is red when both probes fail. Adapter link state alone no longer claims Internet access. Checks run in the telemetry worker, are bounded by timeouts, and are cached for 30 seconds. Redirect/captive-login pages do not count as a successful probe. Online does not establish AI API quota or account access.
 

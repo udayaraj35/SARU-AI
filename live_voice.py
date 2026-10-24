@@ -105,7 +105,7 @@ class LiveVoice:
    incoming.put_nowait(data)
   def capture(indata,frames,timing,status):
    if status:self.callback_error=str(status)
-   if self.stop_event.is_set() or self.muted.is_set():return
+   if self.stop_event.is_set() or self.muted.is_set() or self.typed_reply_pending:return
    if not self.settings.get('live_headphones',False) and (len(self.playback) or time.monotonic()-self.last_output<.25):return
    data=bytes(indata)
    try:self.loop.call_soon_threadsafe(enqueue,data)
@@ -131,6 +131,9 @@ class LiveVoice:
         kind,text=self.text_incoming.get_nowait()
         self.turn_ready.clear()
         self.typed_reply_pending=True
+        # A queued, explicitly requested reply owns this turn. Do not let
+        # already captured room audio interrupt it or replace its authorization.
+        while not incoming.empty():incoming.get_nowait()
         await session.send_client_content(turns={'role':'user','parts':[{'text':text}]},turn_complete=True)
        except Empty:pass
        if self.callback_error:
@@ -140,7 +143,7 @@ class LiveVoice:
         self.callback_error=None
        try:data=await asyncio.wait_for(incoming.get(),timeout=.2)
        except asyncio.TimeoutError:continue
-       if self.muted.is_set():continue
+       if self.muted.is_set() or self.typed_reply_pending:continue
        if time.monotonic()-last_meter>.12:self.emit('input_level',amplitude(data));last_meter=time.monotonic()
        await session.send_realtime_input(audio={'data':data,'mime_type':'audio/pcm;rate=16000'})
      async def receive():
@@ -152,11 +155,15 @@ class LiveVoice:
        async for response in session.receive():
         content=getattr(response,'server_content',None)
         if content is None:continue
+        if self.typed_reply_pending:user_turn='';input_finished=False
         if getattr(content,'input_transcription',None) or getattr(content,'model_turn',None):self.turn_ready.clear()
         if getattr(content,'interrupted',False):
          self.playback.clear();deferred.clear();deferred_size=0;self.emit('state','LISTENING')
         for role,attribute in [('You','input_transcription'),('SARU','output_transcription')]:
          transcript=getattr(content,attribute,None)
+         # In-flight microphone transcripts belong to background input, not
+         # to the explicit text/result reply. Never save or execute them here.
+         if role=='You' and self.typed_reply_pending:continue
          if transcript and transcript.text:
           previous=user_turn if role=='You' else assistant_turn
           if role=='You':

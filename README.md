@@ -1,6 +1,8 @@
-# SARU AI 2.14.0
+# SARU AI 2.14.1
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.14.1 fixes explicit voice replies being silenced by an in-flight room transcript and a text-chat completion path that skipped speech while Live voice was active. Twenty voice/wake regression tests and an isolated GUI smoke test cover this repair; synthetic speech/result replies were also rendered through the selected PC output without recording the microphone. Recognition of the owner's actual speech still depends on the input device, transcription and per-request SARU prefix.
 
 ## Run on Windows
 

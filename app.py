@@ -303,7 +303,7 @@ def send_message(text,output=None,route=True):
    status.set('Ready')
    if output and output.winfo_exists():output.insert('end','SARU: '+answer+'\n\n');output.see('end')
    elif active_page is not None and hasattr(active_page,'chat_output'):active_page.chat_output.insert('end','SARU: '+answer+'\n');active_page.chat_output.see('end')
-   if cfg['speak'] and not (globals().get('voice_hub') and voice_hub.engine and voice_hub.engine.active):threading.Thread(target=speak,args=(answer,),daemon=True).start()
+   speak_ai_reply(answer)
   root.after(0,done)
  threading.Thread(target=job,daemon=True).start()
 def voice_list():
@@ -312,6 +312,13 @@ def voice_list():
   engine=pyttsx3.init();voices=engine.getProperty('voices');engine.stop()
   return [(v.id,v.name) for v in voices]
  except Exception:return []
+def speak_ai_reply(text):
+ if not cfg.get('speak',True):return
+ hub=globals().get('voice_hub')
+ if hub and hub.engine and hub.engine.active:
+  if not hub.speak_reply(text):status.set('Voice reply could not be queued. The answer remains in chat.')
+ else:threading.Thread(target=speak,args=(text,),daemon=True).start()
+
 def speak(text, voice_id=None):
  try:
   import pyttsx3

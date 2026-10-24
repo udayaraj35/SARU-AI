@@ -7,7 +7,7 @@ from voice_hub import VoiceHub
 from network_status import InternetStatus
 
 class ReplyTests(unittest.IsolatedAsyncioTestCase):
- async def exercise(self,rows,queued=False):
+ async def exercise(self,rows,queued=False,ambient=False):
   events=[];finished=asyncio.Event();sent=[];pcm=b'\x01\x02'*20
   class Stream:
    def __enter__(self):return self
@@ -19,7 +19,7 @@ class ReplyTests(unittest.IsolatedAsyncioTestCase):
   class Session:
    async def send_realtime_input(self,**kw):pass
    async def send_client_content(self,**kw):
-    sent.append(kw);await pending.put({'output':'वास्तविक नतिजा','audio':True,'complete':True})
+    sent.append(kw);await pending.put({'input':'open Chrome' if ambient else '', 'output':'वास्तविक नतिजा','audio':True,'complete':True})
    async def receive(self):
     for row in rows:
      yield response(row)
@@ -58,6 +58,12 @@ class ReplyTests(unittest.IsolatedAsyncioTestCase):
   events,count,sent,early=await self.exercise([{'input':'SARU open Chrome','finished':True,'audio':True,'before_complete':True},{'complete':True}],queued=True)
   self.assertTrue(early);self.assertEqual(count,1);self.assertEqual(len(sent),1);self.assertTrue(sent[0]['turn_complete']);self.assertIn('failed to open',sent[0]['turns']['parts'][0]['text'])
   self.assertEqual(sum(k=='conversation_turn' and v[0]=='SARU open Chrome' for k,v in events),1)
+ async def test_inflight_room_transcript_cannot_silence_explicit_reply_or_run_commands(self):
+  events,count,sent,_=await self.exercise([{'input':'SARU open Chrome','finished':True},{'complete':True}],queued=True,ambient=True)
+  self.assertEqual(count,1);self.assertEqual(len(sent),1)
+  self.assertFalse(any(kind=='transcript' and value==('You','open Chrome') for kind,value in events))
+  self.assertFalse(any(kind=='conversation_turn' and value[0]=='open Chrome' for kind,value in events))
+  self.assertIn(('transcript',('SARU','वास्तविक नतिजा')),events)
 
 class StateTests(unittest.TestCase):
  def test_cumulative_and_split_wake_transcripts(self):

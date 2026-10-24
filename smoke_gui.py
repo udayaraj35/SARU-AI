@@ -31,6 +31,10 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    page.render({'internet_online':True,'internet_detail':'Internet connection verified'});assert page.online.cget('text')=='● Online' and page.online.cget('fg')=='#00e676'
    with patch.object(app['voice_hub'],'speak_reply',return_value=True) as feedback:
     app['announce_local']('Local command result for GUI test');feedback.assert_called_once_with('Local command result for GUI test')
+   app['cfg']['speak']=True
+   with patch.object(app['voice_hub'],'engine',Mock(active=True)),patch.object(app['voice_hub'],'speak_reply',return_value=True) as feedback,patch.dict(app,{'speak':Mock()}) as patched:
+    app['speak_ai_reply']('Completed chat answer');feedback.assert_called_once_with('Completed chat answer');patched['speak'].assert_not_called()
+   app['cfg']['speak']=False
    # Own-app commands remain local, and planning does not request owner verification.
    with patch.dict(app,{'authorize_source_edit':Mock(return_value=False)}):
     studio=app['improvement_studio']('fix voice interruptions');root.update_idletasks()
