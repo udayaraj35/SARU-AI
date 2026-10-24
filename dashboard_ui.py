@@ -30,8 +30,10 @@ class Dashboard(tk.Frame):
   nav_width=230 if self.winfo_width()<1400 else 280
   if self.nav.cget('width')!=nav_width:self.nav.configure(width=nav_width)
   inset=nav_width+16
-  nav_height=max(28,min(44,(self.winfo_height()-295)//13-6))
-  for button in (*self.nav_buttons.values(),self.workspace_button,self.details_button):button.configure(height=nav_height)
+  top=self.state.winfo_y()+self.state.winfo_height()+3
+  self.nav.place_configure(x=8,y=top,width=nav_width,height=max(100,self.winfo_height()-top-8))
+  self.shell.pack_configure(padx=(inset,8))
+  if hasattr(self,'sidebar_navigation'):self.sidebar_navigation.fit(self.navcanvas.winfo_height())
   self.composer.pack_configure(padx=(inset,10));self.chips.pack_configure(padx=(inset,10))
   self.chat_dock.pack_forget()
   if not self.drawer_open:self.dock_side='closed';return

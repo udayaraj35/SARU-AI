@@ -96,7 +96,7 @@ class SettingsPanel(tk.Frame):
   field(memory,'display_timezone','Clock timezone','Europe/Sofia')
   field(memory,'work_folder','Default work folder — ask where to save each deliverable','D:/SARU_AI/Work')
   self.remember=tk.BooleanVar(value=cfg.get('remember_conversations',True));self.check(memory,'Keep text and completed voice conversations in local memory',self.remember)
-  label(memory,'Search saved conversations with: recall <topic>. Saving off stops new history; existing history and explicit notes remain.',fg=MUTED,wraplength=650).pack(padx=16,pady=8)
+  label(memory,'Open View notes / Memory to search conversations, notes, actual task results and office work. Use recall <topic> in chat or voice. Saving off stops new journal entries and automatic lookup; existing memory remains local. API keys/passwords and raw microphone recordings are excluded.',fg=MUTED,wraplength=650).pack(padx=16,pady=8)
   field(memory,'companion_style','Conversation style','Warm romantic',choices=['Warm romantic','Friendly','Professional'])
   for title in ['View notes','Save note','Export memory','SARU Storage & RAM']:button(memory,title,actions[title]).pack(fill='x',padx=16,pady=6)
   sec=group('Security','WINDOWS ACCOUNT PROTECTION')

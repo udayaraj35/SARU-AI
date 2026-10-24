@@ -54,7 +54,7 @@ def build(self,root,actions,status,portrait,reference,cfg,activity_path):
   callback=(lambda:self.actions['Search text']('open Google Chrome')) if title=='Open Chrome' else self.actions[key]
   btn(chips,title,callback,width=135,height=30).pack(side='left',expand=True,fill='x',padx=4)
  shell=tk.Frame(self,bg=BG);self.shell=shell;shell.pack(fill='both',expand=True,padx=8)
- nav=tk.Frame(shell,bg='#071326',width=300);self.nav=nav;nav.pack(side='left',fill='y',padx=(0,10));nav.pack_propagate(False)
+ nav=tk.Frame(self,bg='#071326',width=300);self.nav=nav;nav.place(x=8,y=80,width=230,height=500);nav.pack_propagate(False)
  brand=tk.Frame(nav,bg='#071326');brand.pack(fill='x',padx=12,pady=(16,12))
  try:
   with Image.open(ROOT/'dashboard.png') as art:self.logo=ImageTk.PhotoImage(art.crop((20,5,95,80)).resize((56,56)))
@@ -70,15 +70,15 @@ def build(self,root,actions,status,portrait,reference,cfg,activity_path):
  self.settings_button=btn(nav,'⚙  Settings',self.actions['Settings'],width=190,height=37);self.settings_button.pack(side='bottom',fill='x',padx=4,pady=5)
  navcanvas=tk.Canvas(nav,bg='#071326',highlightthickness=0)
  navscroll=ttk.Scrollbar(nav,orient='vertical',command=navcanvas.yview);navscroll.pack(side='right',fill='y');navcanvas.configure(yscrollcommand=navscroll.set);navcanvas.pack(side='left',fill='both',expand=True)
- self.navcanvas=navcanvas;links=tk.Frame(navcanvas,bg='#071326');self.sidebar_links=links;navitem=navcanvas.create_window((0,0),window=links,anchor='nw');self.nav_buttons={}
- navcanvas.bind('<Configure>',lambda e:navcanvas.itemconfigure(navitem,width=e.width));links.bind('<Configure>',lambda e:navcanvas.configure(scrollregion=navcanvas.bbox('all')))
- navcanvas.bind('<MouseWheel>',lambda e:navcanvas.yview_scroll(-int(e.delta/120),'units'))
+ self.navcanvas=navcanvas;links=tk.Frame(navcanvas,bg='#071326');self.sidebar_links=links;self.nav_buttons={}
  items=[('⌂  Home',None),('▣  Chat','AI Chat'),('♩  Voice Mode','Voice: push to talk'),('▤  PC Control','PC Commands'),('▦  Apps & Tools','all'),('◎  Automation','Task Console'),('▤  Files & Documents','Files: summarize'),('▧  Media','YouTube Player'),('◉  Web & Search','Web search'),('⌘  Website Studio','Website Studio'),('♧  Social Media','Social Media')]
  for text,key in items:
   command=self.show_home if key is None else self.show_tools if key=='all' else self.actions[key]
-  b=btn(links,text,command,key is None,width=190,height=35);b.pack(fill='x',padx=4,pady=3);self.nav_buttons[text]=b;b.bind('<MouseWheel>',lambda e:navcanvas.yview_scroll(-int(e.delta/120),'units'))
+  b=btn(links,text,command,key is None,width=190,height=35);b.pack(fill='x',padx=4,pady=3);self.nav_buttons[text]=b
  self.workspace_button=btn(links,'SARU Office',self.toggle_workspace,width=190,height=35);self.workspace_button.pack(fill='x',padx=4,pady=3)
  self.details_button=btn(links,'Device & AI controls ▾',self.toggle_details,width=190,height=35);self.details_button.pack(fill='x',padx=4,pady=3)
+ from sidebar_navigation import SidebarNavigation
+ self.sidebar_navigation=SidebarNavigation(navcanvas,links,navscroll,[*self.nav_buttons.values(),self.workspace_button,self.details_button])
  self.tools_menu=tk.Menu(self,tearoff=False,bg=PANEL,fg=TEXT,activebackground='#284c70',font=('Segoe UI',10))
  for title,callback in sorted(self.actions.items()):
   if title not in ('Set provider','Set home view','Search text'):self.tools_menu.add_command(label=title,command=callback)

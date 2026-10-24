@@ -4,8 +4,8 @@ from queue import Queue,Empty
 from live_voice import LiveVoice
 
 class VoiceHub:
- def __init__(self,root,cfg,visual,engine_factory=LiveVoice,preferences=None):
-  self.auto_enabled=bool(cfg.get('auto_listen',True));self.root=root;self.cfg=cfg;self.visual=visual;self.factory=engine_factory;self.preferences=preferences;self.engine=None;self.events=Queue(maxsize=500);self.sink=None;self.history=deque(maxlen=120);self.closed=False;self.last_error='';self.state='STOPPED';self.job=root.after(60,self.pump)
+ def __init__(self,root,cfg,visual,engine_factory=LiveVoice,preferences=None,memory_lookup=None):
+  self.auto_enabled=bool(cfg.get('auto_listen',True));self.root=root;self.cfg=cfg;self.visual=visual;self.factory=engine_factory;self.preferences=preferences;self.memory_lookup=memory_lookup;self.engine=None;self.events=Queue(maxsize=500);self.sink=None;self.history=deque(maxlen=120);self.closed=False;self.last_error='';self.state='STOPPED';self.job=root.after(60,self.pump)
  def emit(self,kind,value):
   try:self.events.put_nowait((kind,value))
   except Exception:pass
@@ -15,7 +15,8 @@ class VoiceHub:
    self.last_error=''
    settings=dict(self.cfg)
    if self.preferences:settings['personal_notes']=self.preferences()
-   self.engine=self.factory(settings,self.emit);self.engine.start()
+   extra={'memory_lookup':self.memory_lookup} if self.memory_lookup else {}
+   self.engine=self.factory(settings,self.emit,**extra);self.engine.start()
   except Exception as exc:self.emit('error',str(exc));self.emit('state','ERROR')
  def send_text(self,text):
   if self.engine and self.engine.active and self.engine.send_text(text):

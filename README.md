@@ -1,8 +1,8 @@
-# SARU AI 2.14.1
+# SARU AI 2.15.0
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
 
-2.14.1 fixes explicit voice replies being silenced by an in-flight room transcript and a text-chat completion path that skipped speech while Live voice was active. Twenty voice/wake regression tests and an isolated GUI smoke test cover this repair; synthetic speech/result replies were also rendered through the selected PC output without recording the microphone. Recognition of the owner's actual speech still depends on the input device, transcription and per-request SARU prefix.
+2.15.0 adds a private searchable memory journal for conversations, notes, actual task results, Office job snapshots and exported file paths. Open Settings → Memory → View notes or Apps & Tools → Saved memory. Text chat gets bounded relevant memory; Live voice can request a read-only topic lookup during the current addressed conversation. The sidebar now spans the window independently of bottom chat, fitting its buttons to available height and supporting local wheel scrolling when small. See [memory and sidebar behavior](MEMORY_AND_SIDEBAR.md) for recording controls, migration, privacy and limitations. The prior voice reply fixes are retained.
 
 ## Run on Windows
 

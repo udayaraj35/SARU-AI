@@ -36,6 +36,14 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
     app['speak_ai_reply']('Completed chat answer');feedback.assert_called_once_with('Completed chat answer');patched['speak'].assert_not_called()
    app['cfg']['speak']=False
    # Own-app commands remain local, and planning does not request owner verification.
+   app['remember_message']('Boss','Synthetic saffron preference')
+   app['remember_note']('Synthetic note','Tea without sugar')
+   app['announce_local']('Synthetic task completed')
+   app['memory_center']();root.update_idletasks();memory_page=app['active_page']
+   assert memory_page.__class__.__name__=='MemoryPanel'
+   memory_page.query.set('saffron');memory_page.refresh();assert 'Synthetic saffron preference' in memory_page.output.get('1.0','end')
+   memory_page.query.set('');memory_page.kind.set('task');memory_page.refresh();assert 'Synthetic task completed' in memory_page.output.get('1.0','end')
+   app['back_home']()
    with patch.dict(app,{'authorize_source_edit':Mock(return_value=False)}):
     studio=app['improvement_studio']('fix voice interruptions');root.update_idletasks()
     assert studio.winfo_exists()
@@ -183,12 +191,17 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
     app['back_home']();root.update_idletasks()
     assert app['active_page'].__class__.__name__=='Dashboard'
    app['chat_window']()
+   root.geometry('1400x1000');root.update();sidebar=app['active_page']
+   assert sidebar.sidebar_links.winfo_height()<=sidebar.navcanvas.winfo_height(),(sidebar.sidebar_links.winfo_height(),sidebar.navcanvas.winfo_height(),sidebar.sidebar_navigation.height,[(b.cget('height'),b.cget('font')) for b in sidebar.sidebar_navigation.buttons],root.geometry())
    for width,height in ((890,570),(1280,790),(1600,900)):
-    root.geometry(f'{width}x{height}');app['active_page'].focus_chat();root.update_idletasks()
+    root.geometry(f'{width}x{height}');app['active_page'].focus_chat();root.update()
     assert app['active_page'].command.winfo_width()>100
     assert app['active_page'].chat_output.winfo_height()>30
     assert app['active_page'].command.winfo_height()>15
     page=app['active_page'];app['inline_control']('brightness');assert app['active_page'] is page
+    if height==570:
+     page.workspace_button.event_generate('<MouseWheel>',delta=-120);root.update()
+     assert page.navcanvas.yview()[0]>0,(page.navcanvas.yview(),page.sidebar_links.winfo_height(),page.navcanvas.winfo_height(),page.navcanvas.cget('scrollregion'),page.workspace_button.bind('<MouseWheel>'))
    root.geometry('1280x790');root.update_idletasks();assert app['active_page'].dock_side=='bottom'
    from theme_manager import THEMES,apply_theme
    for theme,palette in THEMES.items():
