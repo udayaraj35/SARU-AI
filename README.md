@@ -1,6 +1,8 @@
-# SARU AI 2.18.0
+# SARU AI 2.18.1
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.18.1 places conversation messages in a right-side drawer while retaining the bottom message composer. Voice/text conversation opens the drawer automatically; after a completed reply, 30 seconds of inactivity hides it without deleting history. Reading with the pointer over the drawer, an in-progress reply or unsent text keeps it open. The header × hides it immediately; the Chat button, `open chat` / `chat open gara` / `च्याट खोल` reopens it, and `close chat` / `chat banda gara` hides it. A manually hidden assistant turn stays hidden until new owner speech or explicit opening.
 
 2.18.0 adds local multilingual FAISS memory with SQLite facts, streaming reviewed shell/file tools, persistent Playwright social sessions, pinned executable Git skills with separate environments, additional encrypted provider configurations and signed source-update staging on restart. Existing dashboard styling/layout is retained. Social DOM adapters require local login and unique visible controls; no production-account delivery is certified. Executable skill repositories need a reviewed `saru_skill.json` contract; arbitrary GitHub references are not automatically executable. See [backend architecture, setup, commands and limits](BACKEND_ENGINES.md). On a new PC, after installing requirements, run `python backend_setup.py --memory --browser --receipt` once. Signing keys, account sessions and memories are never included here. Frozen builds use a separately prepared installer.
 

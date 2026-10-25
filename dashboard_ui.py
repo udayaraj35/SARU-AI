@@ -24,22 +24,50 @@ class Dashboard(tk.Frame):
   self.actions['Set provider'](self.provider_var.get(),self.model_var.get().strip())
   self.provider_key.configure(text='Key saved' if self.cfg.get('keys',{}).get(self.provider_var.get()) else 'API key required')
  def toggle_chat(self):
-  self.drawer_open=not self.drawer_open;self.layout_dock()
+  if self.drawer_open:self.hide_chat()
+  else:self.focus_chat()
+ def cancel_chat_idle(self):
+  job=getattr(self,'chat_idle_job',None)
+  if job:
+   try:self.after_cancel(job)
+   except tk.TclError:pass
+  self.chat_idle_job=None
+ def chat_activity(self,complete=True):
+  self.cancel_chat_idle()
+  if not getattr(self,'chat_dismissed',False):
+   if not self.drawer_open:self.drawer_open=True;self.layout_dock()
+  self.chat_busy=not complete
+  if complete and self.drawer_open:self.chat_idle_job=self.after(30000,self.chat_idle)
+ def chat_idle(self):
+  self.chat_idle_job=None
+  if self.closed or not self.drawer_open:return
+  # Keep an in-progress reply, unsent text, or a transcript being read visible.
+  x,y=self.winfo_pointerxy();dock=self.chat_dock
+  reading=dock.winfo_rootx()<=x<dock.winfo_rootx()+dock.winfo_width() and dock.winfo_rooty()<=y<dock.winfo_rooty()+dock.winfo_height()
+  if getattr(self,'chat_busy',False) or self.hero_voice_state=='SPEAKING' or self.command.get().strip() or reading:
+   self.chat_idle_job=self.after(30000,self.chat_idle);return
+  self.hide_chat(manual=False)
+ def hide_chat(self,manual=True):
+  self.cancel_chat_idle();self.chat_dismissed=manual;self.drawer_open=False;self.layout_dock()
  def layout_dock(self,event=None):
-  if event is not None and event.widget is not self:return
+  if event is not None and event.widget not in (self,self.composer):return
   nav_width=230 if self.winfo_width()<1400 else 280
   if self.nav.cget('width')!=nav_width:self.nav.configure(width=nav_width)
   inset=nav_width+16
   top=self.state.winfo_y()+self.state.winfo_height()+3
   self.nav.place_configure(x=8,y=top,width=nav_width,height=max(100,self.winfo_height()-top-8))
-  self.shell.pack_configure(padx=(inset,8))
+  available=max(1,self.winfo_width()-inset-10)
+  width=min(380,max(280,int(available*.34)))
+  self.shell.pack_configure(padx=(inset,width+18 if self.drawer_open else 8))
   if hasattr(self,'sidebar_navigation'):self.sidebar_navigation.fit(self.navcanvas.winfo_height())
   self.composer.pack_configure(padx=(inset,10));self.chips.pack_configure(padx=(inset,10))
   self.chat_dock.pack_forget()
+  self.chat_dock.place_forget()
   if not self.drawer_open:self.dock_side='closed';return
-  side='bottom'
-  self.dock_side=side;self.chat_dock.configure(width=330,height=min(280,max(180,self.winfo_height()//3)))
-  self.chat_dock.pack(side=side,fill='y' if side=='right' else 'x',padx=(inset,10),pady=4,before=self.shell)
+  self.dock_side='right'
+  bottom=self.composer.winfo_y()
+  self.chat_dock.place(x=self.winfo_width()-width-10,y=top,width=width,height=max(100,bottom-top-8))
+  self.chat_dock.lift()
  def voice_event(self,kind,value):
   if self.closed:return
   if kind=='state':
@@ -47,18 +75,23 @@ class Dashboard(tk.Frame):
    if hasattr(self,'hero_voice_label'):self.ring.itemconfigure(self.hero_voice_label,text=value.replace('_',' ').title())
    if value not in ('LISTENING','SPEAKING'):self.update_hero_meter(0)
    if value not in ('LISTENING','SPEAKING') and getattr(self,'avatar_frames',None):self.ring.itemconfigure(self.avatar_item,image=self.avatar_frames[-1])
+   if value in ('STOPPED','ERROR'):
+    self.chat_busy=False
+    if self.drawer_open:self.chat_activity()
   elif kind=='transcript':
-   if not self.drawer_open:self.drawer_open=True;self.layout_dock()
+   if value[0] in ('Boss','User','user'):self.chat_dismissed=False
+   self.chat_activity(complete=False)
    if self.stream_role!=value[0]:
     if self.stream_role:self.chat_output.insert('end','\n')
     self.chat_output.insert('end',value[0]+': ',('speaker',));self.stream_role=value[0]
    self.chat_output.insert('end',value[1]);self.chat_output.see('end')
   elif kind=='conversation_turn':
    if self.stream_role:self.chat_output.insert('end','\n\n');self.stream_role=None
+   self.chat_activity()
   elif kind=='wake_wait':
    self.voice_state.configure(text='सुन्दैछु • हरेक request सुरु गर्दा SARU भन्नुहोस्।')
   elif kind=='error':
-   self.drawer_open=True;self.layout_dock();self.chat_output.insert('end','Voice setup: '+value+'\n');self.chat_output.see('end')
+   self.chat_activity();self.chat_output.insert('end','Voice setup: '+value+'\n');self.chat_output.see('end')
   elif kind in ('input_level','output_level'):
    self.update_hero_meter(value)
    self.voice_meter.delete('all');self.voice_meter.create_rectangle(0,0,self.voice_meter.winfo_width()*value,5,fill=CYAN if kind=='input_level' else PINK,outline='')
@@ -70,7 +103,7 @@ class Dashboard(tk.Frame):
    h=2+max(0,min(1,float(value)))*22*(.4+.6*abs(math.sin(i*1.7)))
    self.ring.coords(item,vx+(i-4)*5,vy-h,vx+(i-4)*5,vy+h)
  def focus_chat(self):
-  self.drawer_open=True;self.layout_dock();self.command.focus_set();self.chat_output.see('end')
+  self.chat_dismissed=False;self.chat_activity();self.command.focus_set();self.chat_output.see('end')
  def show_tools(self):
   self.tools_menu.tk_popup(self.nav.winfo_rootx()+self.nav.winfo_width(),self.nav.winfo_rooty()+100)
  def show_home(self):
@@ -264,6 +297,7 @@ class Dashboard(tk.Frame):
  def _destroy(self,event):
   if event.widget is not self:return
   self.closed=True
+  self.cancel_chat_idle()
   self.controls.close()
   for job in (self.refresh_id,self.pulse_id,self.control_poll_id,self.hero_resize_job,*self.commit_ids.values()):
    if job:

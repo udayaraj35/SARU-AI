@@ -149,12 +149,14 @@ def build(self,root,actions,status,portrait,reference,cfg,activity_path):
  self.activity=label(activity,'No recorded tasks yet.',fg=MUTED,justify='left',anchor='nw',font=('Segoe UI',9));self.activity.pack(fill='x',padx=12,pady=8)
  chat=tk.Frame(self,bg='#071326',width=330,highlightbackground=PINK,highlightthickness=1);self.chat_dock=chat;chat.pack_propagate(False)
  cr=tk.Frame(chat,bg='#071326');cr.pack(fill='x');label(cr,'SARU / CHAT',font=('Segoe UI',12,'bold')).pack(side='left',padx=8)
+ btn(cr,'×',self.hide_chat,width=32,height=28).pack(side='right',padx=6,pady=4)
  transcript=tk.Frame(chat,bg='#081225');transcript.pack(fill='both',expand=True,padx=8,pady=8)
  self.chat_output=tk.Text(transcript,height=5,bg='#081225',fg=TEXT,wrap='word',font=('Segoe UI',11),relief='flat');self.chat_output.pack(side='left',fill='both',expand=True);self.chat_output.tag_configure('speaker',font=('Segoe UI',11,'bold'),foreground=CYAN)
  chat_scroll=ttk.Scrollbar(transcript,orient='vertical',command=self.chat_output.yview);chat_scroll.pack(side='right',fill='y');self.chat_output.configure(yscrollcommand=chat_scroll.set)
  self.voice_state=label(chat,'Voice stopped',fg=CYAN,font=('Segoe UI',9));self.voice_state.pack(fill='x',padx=8)
  self.voice_meter=tk.Canvas(chat,height=5,bg='#11213a',highlightthickness=0);self.voice_meter.pack(fill='x',padx=8,pady=5)
  self.panels=(hero,metrics,controls,provider,quick,social,activity);self.compact=None;body.bind('<Configure>',lambda e:self.reflow(e.width),add='+');self.bind('<Configure>',self.layout_dock,add='+')
+ self.composer.bind('<Configure>',self.layout_dock,add='+')
  self.poll();self.poll_controls();self.animate(0)
 
 def draw_hero(self,width,height,portrait):

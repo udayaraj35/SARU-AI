@@ -95,7 +95,9 @@ def announce_local(text):
  memory_journal.record('task','SARU result',text)
  status.set(text[:180])
  output=getattr(globals().get('active_page'),'chat_output',None)
- if output is not None and output.winfo_exists():output.insert('end','SARU: '+text+'\n\n');output.see('end')
+ if output is not None and output.winfo_exists():
+  output.insert('end','SARU: '+text+'\n\n');output.see('end')
+  if hasattr(active_page,'chat_activity'):active_page.chat_activity()
  hub=globals().get('voice_hub')
  if hub:
   try:hub.speak_reply(text)
@@ -305,12 +307,14 @@ def send_message(text,output=None,route=True):
   run_agent_task(text,output);return
  hub=globals().get('voice_hub')
  if hub and hub.send_text(text):
+  if hasattr(active_page,'chat_activity'):active_page.chat_activity(complete=False)
   if cfg.get('remember_conversations',True):
    remember_message('Boss',text)
   return
  if cfg.get('remember_conversations',True):
   remember_message('Boss',text)
  status.set('Thinking…')
+ if hasattr(active_page,'chat_activity'):active_page.chat_activity(complete=False)
  if output:output.insert('end','Boss: '+text+'\n\n')
  cancel_requests.clear();generation=request_generation
  saved_notes=notes();saved_history=history();memory_journal.sync(DATA);recalled=memory_journal.context(text) if cfg.get('remember_conversations',True) else '';request_cfg=copy.deepcopy(cfg)
@@ -342,6 +346,7 @@ def send_message(text,output=None,route=True):
    status.set('Ready' if used_model==request_cfg.get('model') else 'Using available text model: '+used_model)
    if output and output.winfo_exists():output.insert('end','SARU: '+answer+'\n\n');output.see('end')
    elif active_page is not None and hasattr(active_page,'chat_output'):active_page.chat_output.insert('end','SARU: '+answer+'\n');active_page.chat_output.see('end')
+   if hasattr(active_page,'chat_activity'):active_page.chat_activity()
    speak_ai_reply(answer)
   root.after(0,done)
  threading.Thread(target=job,daemon=True).start()
@@ -804,6 +809,8 @@ def apply_saru_control(control):
   return ('SARU controls: theme blue/pink/purple/green; photo size 60–110; text size 90–140; floating size 48–240; floating text size 10–22; floating opacity 35–100; show/hide floating saru; enable/disable animations; romantic/friendly/professional mode; speak/silent replies; speech speed 80–300; enable/disable auto listening; remember conversations / stop remembering conversations; open chat/settings/owner profile/social media/video studio/repository skills/update center; start/stop voice; watch screen / stop screen view; browser back/forward/reload/new tab/close tab/tab 2; unlock saru changes; saru update request <change>; saru update files <file.py, file.py>; generate/apply/rollback saru update. Exact proposals require owner approval; unavailable actions report errors.')
  elif kind=='page':
   {'chat':chat_window,'profile':profile_page,'social':social_media_page,'video':youtube_studio,'skills':repository_center,'updates':update_center}[value]()
+ elif kind=='chat':
+  if hasattr(active_page,'hide_chat'):active_page.hide_chat()
  elif kind in ('edit','edit_files','edit_request'):
   if kind=='edit' and value=='status':
    return improvement_window.status_text() if improvement_window is not None and improvement_window.winfo_exists() else 'No self-improvement session is open. Say improve saru followed by your requested change.'

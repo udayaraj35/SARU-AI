@@ -202,11 +202,14 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
     assert app['active_page'].command.winfo_width()>100
     assert app['active_page'].chat_output.winfo_height()>30
     assert app['active_page'].command.winfo_height()>15
+    assert app['active_page'].dock_side=='right'
+    assert app['active_page'].chat_dock.winfo_x()>app['active_page'].nav.winfo_x()+app['active_page'].nav.winfo_width()
+    assert app['active_page'].chat_dock.winfo_y()+app['active_page'].chat_dock.winfo_height()<=app['active_page'].composer.winfo_y(),(width,height,app['active_page'].chat_dock.winfo_geometry(),app['active_page'].composer.winfo_geometry())
     page=app['active_page'];app['inline_control']('brightness');assert app['active_page'] is page
     if height==570:
      page.workspace_button.event_generate('<MouseWheel>',delta=-120);root.update()
      assert page.navcanvas.yview()[0]>0,(page.navcanvas.yview(),page.sidebar_links.winfo_height(),page.navcanvas.winfo_height(),page.navcanvas.cget('scrollregion'),page.workspace_button.bind('<MouseWheel>'))
-   root.geometry('1280x790');root.update_idletasks();assert app['active_page'].dock_side=='bottom'
+   root.geometry('1280x790');root.update_idletasks();assert app['active_page'].dock_side=='right'
    from theme_manager import THEMES,apply_theme
    for theme,palette in THEMES.items():
     app['cfg']['theme']=theme;apply_theme(app['active_page'],theme);root.update_idletasks()
@@ -233,6 +236,19 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    assert abs(scale.get()-80)<=1
    page.chat_output.delete('1.0','end');page.voice_event('transcript',('SARU','Hello '));page.voice_event('transcript',('SARU','world'));page.voice_event('conversation_turn',('',''))
    assert page.chat_output.get('1.0','end').count('SARU:')==1
+   # Closing keeps the rest of this assistant turn hidden. New owner speech
+   # reopens it; idle hiding preserves all transcript history.
+   saved=page.chat_output.get('1.0','end');page.hide_chat();root.update_idletasks()
+   assert not page.drawer_open and not page.chat_dock.winfo_manager()
+   page.voice_event('transcript',('SARU','More of the same reply'));assert not page.drawer_open
+   page.voice_event('transcript',('Boss','New owner request'));root.update_idletasks();assert page.drawer_open
+   page.voice_event('conversation_turn',('',''));page.hero_voice_state='LISTENING'
+   page.command.delete(0,'end');page.winfo_pointerxy=lambda:(-10000,-10000)
+   page.cancel_chat_idle();page.chat_idle();root.update_idletasks();assert not page.drawer_open
+   assert saved.strip() in page.chat_output.get('1.0','end')
+   app['run_agent_task']('chat open gara',quiet=True);root.update_idletasks();assert page.drawer_open
+   app['run_agent_task']('chat banda gara',quiet=True);root.update_idletasks();assert not page.drawer_open
+   page.toggle_chat();root.update_idletasks();assert page.drawer_open and page.dock_side=='right'
    app['cfg']['keys']={'OpenAI':'test-only-key'};app['save']()
    assert 'test-only-key' not in Path(temp,'settings.json').read_text(encoding='utf8')
    print('PASS: neon dashboard, 8 Settings tabs, validation/save, six page/back routes, three sizes, secure save')

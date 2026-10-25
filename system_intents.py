@@ -3,6 +3,8 @@ import re
 
 def system_intent(text):
  q=text.casefold().strip().rstrip('.!?।')
+ if q in ('chat open gara','chat open garnu','chat khola','chat kholnu','chat kholideu','show chat','च्याट खोल','च्याट खोल्नुहोस्','च्याट खोलिदेऊ'):return ('page','chat')
+ if q in ('close chat','hide chat','chat banda gara','chat banda garnu','chat बन्द गर','च्याट बन्द गर','च्याट लुकाऊ'):return ('chat','hide')
  exact={'fill password locally':('browser','fill_password'),'enter password locally':('browser','fill_password'),'open browser':('browser','open'),'control saru browser':('browser','control'),'open saru browser':('browser','open'),'saru browser':('browser','open'),'browser back':('browser','back'),'browser forward':('browser','forward'),'browser reload':('browser','reload'),'browser new tab':('browser','new_tab'),'browser close tab':('browser','close_tab'),'browser zoom in':('browser','zoom_in'),'browser zoom out':('browser','zoom_out'),'close saru browser':('browser','close'),'watch screen':('screen_watch','start'),'start screen view':('screen_watch','start'),'screen heri rakha':('screen_watch','start'),'स्क्रिन हेरिराख':('screen_watch','start'),'stop screen view':('screen_watch','stop'),'screen herna banda gara':('screen_watch','stop'),'स्क्रिन हेर्न बन्द गर':('screen_watch','stop'),'settings':('settings',None),'open settings':('settings',None),'सेटिङ खोल्नुहोस्':('settings',None),'सेटिङ खोल':('settings',None),
  'office view':('view','office'),'assistant view':('view','assistant'),'home view':('view','assistant'),'dashboard':('view','assistant'),
  'full screen':('window','fullscreen'),'fullscreen':('window','fullscreen'),'फुल स्क्रिन गर':('window','fullscreen'),'exit full screen':('window','normal'),'normal screen':('window','normal'),
