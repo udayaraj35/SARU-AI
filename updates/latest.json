@@ -1,8 +1,8 @@
 {
   "payload": {
     "repository": "udayaraj35/SARU-AI",
-    "commit": "1ec672227b558e064bb1fc8a3a72885763bd3cb8",
-    "version": "2.18.4",
+    "commit": "ad086a9cd332f4092c761b5cf40b830bfe53f4ba",
+    "version": "2.19.0",
     "files": {
       "action_consent.py": {
         "sha256": "15bb1704d1b7a4930aa26fd8c462a07616466f414edef1932a349580d8ff54ca",
@@ -33,8 +33,8 @@
         "size": 4730
       },
       "app.py": {
-        "sha256": "eeb24a4e1f9df8cf2883eff48b018680ab9b487989730aaf4cefc6ec08a4c392",
-        "size": 121539
+        "sha256": "e98b66de53bdb2d0f79b9e4e0c32497f409f2c32258f051629a9fa11d5de1376",
+        "size": 121977
       },
       "appearance_controls.py": {
         "sha256": "df3b8b485d8d92d41f91dd8f852d4118405b2a1698e6e5dbe33d3b8c0d3c4b14",
@@ -209,12 +209,12 @@
         "size": 2008962
       },
       "dashboard_layout.py": {
-        "sha256": "94dff9277d0ba2d020351bd43f0670fbd5ab530fb0dd16ff88c324ef73f930e4",
-        "size": 19828
+        "sha256": "93f5d592fce5d9310d3ea49bc6dfd4ec1330450e4edb4b9a7c576a5d25e77486",
+        "size": 19931
       },
       "dashboard_ui.py": {
-        "sha256": "e774977aab5965158b5562f34b5228ba29b94d29ec7dd90b4d74f3819a79136e",
-        "size": 17123
+        "sha256": "8569c2d4ebbfb6e2c3f9831414937310c692d8977336d5599b26222018a337cf",
+        "size": 17748
       },
       "desktop_actions.py": {
         "sha256": "558a02da7ecfcaaef04b29fe041aa142991100df03f254c80e18c23b7b0aa0c8",
@@ -293,8 +293,8 @@
         "size": 3258
       },
       "live_voice.py": {
-        "sha256": "a9de9633ef18d41fbc49e3fdbcc4569a9ac87964af4906110c3215c3304e3fe3",
-        "size": 17720
+        "sha256": "0088d29e84297317f4fd1e6f1a862258fe90ae0dbc2770ae0ecdd6a55acb769b",
+        "size": 19346
       },
       "MASTER_SPEC.md": {
         "sha256": "6127f595efe35f69bc836ead6185aac55fa80382b0a627d3de5b47c884b7b2a0",
@@ -469,8 +469,8 @@
         "size": 2262
       },
       "README.md": {
-        "sha256": "45d7c57de2c94ded0e3d7bbc95d8c4fa1d4ee1bfed0065b450717d8a4ba06fd6",
-        "size": 10878
+        "sha256": "bcf48cf5e3de0daf9032750761c7aaff55782a4774ac36a7423cca4b18b723da",
+        "size": 11473
       },
       "README_V16.md": {
         "sha256": "cbc7ec074c281ecd6fa9d7702bcf2a25ae4d563a0185f82bd545ce6440197788",
@@ -589,8 +589,8 @@
         "size": 2664
       },
       "settings_ui.py": {
-        "sha256": "8b35f0c2330d538f20f5b4e717e5793e18eeb3aecfedb86f55df8ede70b9c450",
-        "size": 15792
+        "sha256": "1b3e4d4c2361311ab6196683731e615106c0c7fbeb84867d6391aa3b6475be2e",
+        "size": 16129
       },
       "setup_bootstrap.py": {
         "sha256": "4f621b7de66d34b4feaceb86b66817b92e255a81476e2556cba3529cf8053d9d",
@@ -617,8 +617,8 @@
         "size": 1305
       },
       "smoke_gui.py": {
-        "sha256": "03bfed304ad92f1ab92bf0d2287cfdbf253243851111058f1c3ff03a0fc8da7d",
-        "size": 19627
+        "sha256": "138e70d43feb1310a13c13245786010d25c905989b2dc8520ac80c2b26687537",
+        "size": 19626
       },
       "smoke_setup.py": {
         "sha256": "e33bc48f0111460dd455c903e5b6e419e38cf219eb3bcfed4d628185b7e23bdb",
@@ -857,12 +857,12 @@
         "size": 9294
       },
       "test_voice_gate.py": {
-        "sha256": "681e6a8bf33f2e94b3b530d4238666c354db396cc806ad6fa6f41b877e2fc0e4",
-        "size": 1458
+        "sha256": "0cccc40681d99e7c6fe9deb65c6aa65a8240a5ee29d390a408ce02131f60081d",
+        "size": 2602
       },
       "test_voice_replies.py": {
-        "sha256": "0ee23b71b6a56a4fe1e46cd4f5a15a8089dc0e69aeec66570f336774082b6524",
-        "size": 7949
+        "sha256": "a4c0b571ca07f914f62cc661b61636c75fa8191b7f20069214b95a25889d0ffe",
+        "size": 8992
       },
       "test_wacrm.py": {
         "sha256": "f282f77cca4d963df5398b01f112bc131ffaca625dcd1c4f2b8d9a4433bafa2a",
@@ -897,7 +897,7 @@
         "size": 4237
       },
       "version.py": {
-        "sha256": "b2f75896e9779b31c680cea855dd97f389133d3e4aff94caf1c767a74f90aa29",
+        "sha256": "acb2ed5881a5d4a1717501e84bcde2bc8866626d40a6f4c24efd912bbb9cd898",
         "size": 91
       },
       "VIDEO_AND_PUBLISHING.md": {
@@ -924,9 +924,13 @@
         "sha256": "5a11ffb7a03802d7402ce465572cac861ecf8e9386f89c06bd301e079dc3b44a",
         "size": 5607
       },
+      "VOICE_CONVERSATION.md": {
+        "sha256": "991b127393a818cd134e0e23a0cd4579e32bdb2003b0325484deb9c58b6f806a",
+        "size": 2786
+      },
       "voice_gate.py": {
-        "sha256": "6d353c9f80840b4e6239862652aa5a8377dd99f7599f5f7d44b74cd1a8d6f383",
-        "size": 1640
+        "sha256": "7e9d5501a27838ed8b5fb25073ac56568aa8c636bfe0530b8a893b27830f995e",
+        "size": 2724
       },
       "voice_hub.py": {
         "sha256": "fa6a70943c02f5dfdecdba6836556915f460f6227f5c5d9ee509cc1389b76ae5",
@@ -1286,5 +1290,5 @@
       }
     }
   },
-  "signature": "muaynct6+yljhRwqTHEyHiWLAGWrF8E+96mLARQtzjQ1PYPEqwsNipY6yWKU8CVPY2LBI97D+Jch5+1mp8LmDw=="
+  "signature": "L+sgpyAamcIE0CmqY8mrcO1clYlfqT+KwrWwoqo6MLe4I3Vki1V++jXzLIQXFdelTqKrnb+zsql5uNX6hMwOAg=="
 }
