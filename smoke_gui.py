@@ -126,6 +126,8 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    assert app['active_page'].__class__.__name__=='SettingsPanel'
    assert app['active_page'].book.tab(app['active_page'].book.select(),'text')=='Appearance'
    assert len(app['active_page'].country_picker.cget('values'))>200
+   picker=app['active_page'].country_picker
+   assert picker.winfo_rooty()+picker.winfo_height()<root.winfo_rooty()+root.winfo_height()-60
    app['back_home']();page=app['active_page']
    assert page.control_panel.master is page.body
    assert page.panels[3].master is page.body

@@ -75,6 +75,7 @@ class SettingsPanel(tk.Frame):
   from theme_manager import THEMES
   field(look,'theme','Interface theme','Neon Rose',choices=list(THEMES))
   region=group('Appearance','CLOCK / COUNTRY & TIMEZONE')
+  region.pack_configure(before=look)
   from clock_regions import country_catalog,country_choices,country_for_zone,country_code,zones_for_country,OTHER
   catalog=country_catalog();zone=cfg.get('display_timezone','Europe/Sofia')
   code=cfg.get('display_country',country_for_zone(zone))
