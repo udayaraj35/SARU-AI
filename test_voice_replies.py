@@ -7,6 +7,12 @@ from voice_hub import VoiceHub
 from network_status import InternetStatus
 
 class ReplyTests(unittest.IsolatedAsyncioTestCase):
+ async def test_full_addressed_question_with_observed_asr_spelling_plays_answer(self):
+  events,count,_,_=await self.exercise([{'output':'Two plus three is five.','audio':True},{'input':'SAU, what is 2 + 3?','finished':True,'complete':True}])
+  self.assertEqual(count,1)
+  self.assertIn(('transcript',('You','SAU, what is 2 + 3?')),events)
+  self.assertIn(('transcript',('SARU','Two plus three is five.')),events)
+  self.assertIn(('conversation_turn',('SAU, what is 2 + 3?','Two plus three is five.')),events)
  async def test_split_wake_is_fully_visible_and_bare_greeting_gets_fallback(self):
   events,_,_,_=await self.exercise([{'input':'SA'},{'input':'RU hello?','finished':True,'complete':True}])
   self.assertEqual(''.join(value[1] for kind,value in events if kind=='transcript' and value[0]=='You'),'SARU hello?')

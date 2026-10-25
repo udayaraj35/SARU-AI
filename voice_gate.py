@@ -1,6 +1,9 @@
 """A per-utterance wake phrase, not speaker identity or biometric verification."""
 import re
-NAME=r'(?:saru|saaru|सारु|सारू|सरु|सरू|एस\s*ए(?:\s*ए)?\s*आर\s*यू|S\s+A(?:\s+A)?\s+R\s+U)'
+# Observed Gemini ASR drops the R in a full addressed question and emits
+# uppercase "SAU, ...". Accept only that punctuated, nonempty ASR shape;
+# ordinary sau/sau hundred, Sarah, Sorry and embedded names stay blocked.
+NAME=r'(?:saru|saaru|सारु|सारू|सरु|सरू|एस\s*ए(?:\s*ए)?\s*आर\s*यू|S\s+A(?:\s+A)?\s+R\s+U|(?-i:SAU)(?=[,:]\s+\S))'
 PREFIX=r'^\s*(?:(?:hey|hello|हे|हेलो)[,\s]+)?'+NAME+r'(?=$|[,!?:.।\s])'
 
 def addressed_to_saru(text):

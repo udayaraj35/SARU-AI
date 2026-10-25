@@ -1,6 +1,8 @@
-# SARU AI 2.18.1
+# SARU AI 2.18.2
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.18.2 fixes an observed full-question wake-name transcription failure: Gemini transcribed a synthetic “SARU, what is two plus three?” as uppercase `SAU, what is 2 + 3?`, which the local wake gate discarded. The gate now recognizes that narrowly punctuated uppercase ASR form with a nonempty request. Ordinary `sau`, unpunctuated `SAU`, `Sorry`, `Sarah`, embedded names and unaddressed follow-up speech remain blocked. A real provider test then returned the correct Nepali answer with audio. The SARU prefix remains required for every spoken request; this is not speaker authentication.
 
 2.18.1 places conversation messages in a right-side drawer while retaining the bottom message composer. Voice/text conversation opens the drawer automatically; after a completed reply, 30 seconds of inactivity hides it without deleting history. Reading with the pointer over the drawer, an in-progress reply or unsent text keeps it open. The header × hides it immediately; the Chat button, `open chat` / `chat open gara` / `च्याट खोल` reopens it, and `close chat` / `chat banda gara` hides it. A manually hidden assistant turn stays hidden until new owner speech or explicit opening.
 

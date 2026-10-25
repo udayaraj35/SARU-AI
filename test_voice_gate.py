@@ -2,6 +2,12 @@ import unittest
 from voice_gate import addressed_to_saru,may_respond
 
 class WakeTests(unittest.TestCase):
+ def test_observed_full_question_asr_spelling_is_narrowly_recognized(self):
+  from voice_gate import strip_address
+  self.assertTrue(may_respond('SAU, what is 2 + 3?'))
+  self.assertEqual(strip_address('SAU, what is 2 + 3?'),'what is 2 + 3?')
+  for text in ('sau, what is 2 + 3?','SAU what is 2 + 3?','SAU','SAU,','Sorry, what is 2 + 3?','Sarah, hello','the phone says SAU, hello'):
+   self.assertFalse(may_respond(text),text)
  def test_every_utterance_needs_own_wake_prefix(self):
   for text in ['SARU open Chrome','Hey SARU, hello','सारु क्रोम खोल','सारू कुरा गर','hello SARU.','Saru?','सरू हेलो','एसएएआरयू हेलो','एस ए आर यू open Chrome']:
    self.assertTrue(addressed_to_saru(text))
