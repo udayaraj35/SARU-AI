@@ -24,7 +24,8 @@ Other messages go to your configured AI provider. Social drafts need your final 
 def normalize_request(command):
  """Strip polite wrappers, leaving names and message bodies intact."""
  q=command.strip()
- q=re.sub(r'^(?:hey\s+|hello[, ]+)?(?:saru|सारु|सारू|सरु)[,!:।\s]+','',q,flags=re.I).strip()
+ from voice_gate import strip_address
+ q=strip_address(q)
  q=re.sub(r'^(?:(?:can|could|would|will) you\s+|I want you to\s+|please\s+|कृपया\s+|मलाई\s+|malai\s+)+','',q,flags=re.I).strip()
  # Only strip trailing politeness from action requests, never stored note/draft text.
  if not re.match(r'(?:remember|save note|write note|whatsapp to|email to|search|youtube search)\s',q,re.I):
@@ -89,9 +90,25 @@ def parse_command(command):
  m=re.fullmatch(r'(?:add repo|install repo|learn repo|repo add gara|यो रिपो थप)\s+(https://github\.com/\S+|[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)',q,re.I)
  if m:return 'repo_add',m[1]
  if low.rstrip('.!?।') in ('youtube player','open youtube player','media player','open media player','saved videos','youtube player kholnu','youtube player खोल्नु','युट्युब प्लेयर खोल्नु'):return 'media_player',None
+ m=re.fullmatch(r'(?:play youtube|play on youtube|youtube play|youtube ma bajau|युट्युबमा बजाऊ)\s+(.+)',q,re.I)
+ if m:return 'media_search',m[1]
+ m=re.fullmatch(r'play\s+(https?://\S+)',q,re.I)
+ if m:return 'media_search',m[1]
+ for phrases,control,value in [
+  (('video volume up','video ko volume badhau','भिडियोको आवाज बढाऊ'),'volume_delta',10),
+  (('video volume down','video ko volume ghatau','भिडियोको आवाज घटाऊ'),'volume_delta',-10),
+  (('video fullscreen','fullscreen video','video thulo gara','भिडियो ठूलो गर'),'fullscreen',None),
+  (('video small','video sano gara','भिडियो सानो गर'),'small',None),
+  (('video restore','restore video'),'restore',None),
+  (('minimize video','video minimize'),'minimize',None),
+  (('mute video','video mute'),'volume',0),
+  (('video forward','video agadi gara'),'seek',10),
+  (('video back','video pachadi gara'),'seek',-10),
+ ]:
+  if low in phrases:return 'media_control',(control,value)
  for prefix in ('play saved video ','play saved ','saved video bajau ','सेभ गरेको भिडियो बजाऊ '):
   if low.startswith(prefix):return 'media_play',q[len(prefix):].strip()
- if low in ('pause video','video pause gara','भिडियो रोक'):return 'media_control',('pause',None)
+ if low in ('pause video','stop video','video pause gara','video rok','भिडियो रोक'):return 'media_control',('pause',None)
  if low in ('play video','resume video','video bajau','भिडियो बजाऊ'):return 'media_control',('play',None)
  if low in ('next video','अर्को भिडियो'):return 'media_control',('next',None)
  if low in ('previous video','अघिल्लो भिडियो'):return 'media_control',('previous',None)

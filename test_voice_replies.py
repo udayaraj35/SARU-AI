@@ -7,6 +7,12 @@ from voice_hub import VoiceHub
 from network_status import InternetStatus
 
 class ReplyTests(unittest.IsolatedAsyncioTestCase):
+ async def test_split_wake_is_fully_visible_and_bare_greeting_gets_fallback(self):
+  events,_,_,_=await self.exercise([{'input':'SA'},{'input':'RU hello?','finished':True,'complete':True}])
+  self.assertEqual(''.join(value[1] for kind,value in events if kind=='transcript' and value[0]=='You'),'SARU hello?')
+  self.assertIn(('wake_ack',True),events)
+  events,_,_,_=await self.exercise([{'input':'hello SARU.','output':'Hello Boss','finished':True,'audio':True,'complete':True}])
+  self.assertNotIn(('wake_ack',True),events)
  async def exercise(self,rows,queued=False,ambient=False):
   events=[];finished=asyncio.Event();sent=[];pcm=b'\x01\x02'*20
   class Stream:

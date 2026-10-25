@@ -28,6 +28,8 @@ class WidgetTests(unittest.TestCase):
    with tempfile.TemporaryDirectory() as folder:
     journal=MemoryJournal(db,{});journal.record('conversation','Boss','tea without sugar');journal.record('task','Chrome','window opened')
     page=MemoryPanel(root,journal,folder,lambda:None,lambda:None,lambda:None);root.update()
+    self.assertGreater(page.foot.winfo_height(),25)
+    self.assertLess(page.foot.winfo_y()+page.foot.winfo_height(),page.winfo_height()+1)
     self.assertIn('tea without sugar',page.output.get('1.0','end'));page.kind.set('task');page.query.set('Chrome');page.refresh()
     text=page.output.get('1.0','end');self.assertIn('window opened',text);self.assertNotIn('tea without sugar',text)
     journal.record('task','Chrome','closed verified window');page.refresh();self.assertIn('closed verified window',page.output.get('1.0','end'))

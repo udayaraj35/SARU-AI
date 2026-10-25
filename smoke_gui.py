@@ -70,8 +70,8 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
     assert app['pending_actions'].peek() is None
    with patch.dict(app,{'launch_named_application':Mock()}):
     app['send_message']('open Google Chrome');assert app['pending_actions'].peek() is None
-   with patch.dict(app,{'open_saru_browser':Mock()}):
-    app['send_message']('open YouTube');assert app['pending_actions'].peek() is None
+   with patch.dict(app,{'media_player':Mock()}) as mocked:
+    app['send_message']('open YouTube');assert app['pending_actions'].peek() is None;mocked['media_player'].assert_called_once()
    from ui_control import UiControl
    app['send_message']('list buttons');assert 'Available buttons' in app['status'].get()
    invoked=Mock();test_button=tk.Button(root,text='Test exact SARU button',command=invoked);test_button.place(x=300,y=100);root.update_idletasks()

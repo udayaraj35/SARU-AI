@@ -27,10 +27,13 @@ class AssistantTests(unittest.TestCase):
   fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='run_agent_task')
   calls=[]
   ns={'open_saru_browser':lambda url:calls.append(url),'interpret_task':parse_command,'calculate':calculate,'SITES':SITES,'HELP':'help','webbrowser':types.SimpleNamespace(open=lambda url:calls.append(url)),'urllib':__import__('urllib.parse'),'log_task':lambda *a:None,'status':types.SimpleNamespace(set=lambda *a:None),'cfg':{'speak':False},'show_dialog':lambda *args:calls.append(args),'adjust_volume':lambda n:calls.append(n),'adjust_brightness':lambda n:calls.append(n),'notes':lambda:[('test','saved note')]}
+  player=types.SimpleNamespace(play_request=lambda query:calls.append(('video-query',query)))
+  ns['media_player']=lambda *args:(calls.append('native-video-screen') or player)
   exec(compile(ast.Module(body=[fn],type_ignores=[]),'app.py','exec'),ns)
   for command in ['open youtube','youtube search Nepali songs','volume 40','brightness 60','calculate 2+2','show notes']:ns['run_agent_task'](command)
-  self.assertIn('https://www.youtube.com/',calls)
-  self.assertIn('https://www.youtube.com/results?search_query=Nepali+songs',calls)
+  self.assertIn('native-video-screen',calls)
+  self.assertIn(('video-query','Nepali songs'),calls)
+  self.assertFalse(any(isinstance(item,str) and item.startswith('https://www.youtube.com') for item in calls))
   self.assertIn(40,calls);self.assertIn(60,calls)
   self.assertIn(('SARU Agent','Result: 4'),calls)
 

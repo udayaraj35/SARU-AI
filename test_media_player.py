@@ -42,6 +42,32 @@ class LibraryTests(unittest.TestCase):
 
 
 class ServerTests(unittest.TestCase):
+ def test_rapid_commands_are_queued_in_order(self):
+  with tempfile.TemporaryDirectory() as temp:
+   player=MediaPopup(temp)
+   try:
+    player.send('volume',60);player.send('next');player.send('pause')
+    with urlopen(player.url+'commands?after=0') as response:rows=json.load(response)
+    self.assertEqual([x['action'] for x in rows],['volume','next','pause'])
+    with urlopen(player.url+'commands?after=2') as response:self.assertEqual([x['action'] for x in json.load(response)],['pause'])
+    with self.assertRaises(ValueError):player.send('volume',200)
+   finally:player.close()
+ def test_video_commands_and_private_chat_pipe(self):
+  from assistant_commands import parse_command
+  from command_policy import direct_owner_action
+  for phrase in ('pause video','video fullscreen','video small','video volume up','video volume down','next video'):
+   action,args=parse_command(phrase);self.assertEqual(action,'media_control');self.assertTrue(direct_owner_action(action,args))
+  self.assertEqual(parse_command('play youtube Nepali songs'),('media_search','Nepali songs'))
+  from unittest.mock import patch,Mock
+  with tempfile.TemporaryDirectory() as temp:
+   player=MediaPopup(temp)
+   try:
+    process=Mock();process.poll.return_value=None;process.stdout=[]
+    with patch('media_popup.subprocess.Popen',return_value=process) as start:
+     player.open();player.open();self.assertEqual(start.call_count,1)
+     self.assertIn('media_screen_host.py',start.call_args.args[0][1]);self.assertNotIn('--app=',str(start.call_args))
+     player.chat('SARU: real reply\n');self.assertIn('real reply',process.stdin.write.call_args.args[0])
+   finally:player.close()
  def test_session_guard_library_and_byte_ranges(self):
   with tempfile.TemporaryDirectory() as temp:
    player=MediaPopup(temp)

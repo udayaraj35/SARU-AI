@@ -5,6 +5,14 @@ import unittest
 from live_voice import PCMBuffer,amplitude,voice_config,LiveVoice
 
 class VoiceTests(unittest.TestCase):
+ def test_output_only_saved_microphone_uses_default_without_changing_preferences(self):
+  from live_voice import usable_audio_device
+  audio=types.SimpleNamespace(query_devices=lambda value:{'max_input_channels':0 if value==2 else 2,'max_output_channels':2})
+  events=[];emit=lambda *event:events.append(event)
+  self.assertEqual(usable_audio_device(audio,2,'input',emit),-1)
+  self.assertEqual(usable_audio_device(audio,1,'input',emit),1)
+  self.assertEqual(usable_audio_device(audio,2,'output',emit),2)
+  self.assertEqual(len(events),1)
  def test_pcm_playback_and_interrupt(self):
   buf=PCMBuffer(16);buf.append(b'1234');self.assertEqual(buf.read(6),(b'1234\0\0',4));buf.append(b'abc');buf.clear();self.assertEqual(len(buf),0)
   self.assertFalse(buf.append(b'x'*17));self.assertEqual(len(buf),0)
