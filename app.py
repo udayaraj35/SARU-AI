@@ -44,6 +44,7 @@ except SettingsError as exc:
 boot.complete('settings')
 cfg.setdefault('semantic_memory',True)
 cfg.setdefault('wake_conversation',True)
+cfg.setdefault('dashboard_style','Holographic')
 
 def save():store.save(cfg)
 con=sqlite3.connect(DB);con.execute('create table if not exists messages(id integer primary key,role text,content text)');con.execute('create table if not exists notes(id integer primary key,title text,content text)');con.commit()

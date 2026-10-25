@@ -75,6 +75,7 @@ class SettingsPanel(tk.Frame):
   look=group('Appearance','IDENTITY & MOTION')
   from theme_manager import THEMES
   field(look,'theme','Interface theme','Neon Rose',choices=list(THEMES))
+  field(look,'dashboard_style','Main workspace','Holographic',choices=['Holographic','Portrait'])
   region=group('Appearance','CLOCK / COUNTRY & TIMEZONE')
   region.pack_configure(before=look)
   from clock_regions import country_catalog,country_choices,country_for_zone,country_code,zones_for_country,OTHER

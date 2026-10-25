@@ -73,6 +73,7 @@ class Dashboard(tk.Frame):
   if kind=='state':
    self.hero_voice_state=value;self.voice_state.configure(text='कुरा जारी छ • नाम दोहोर्‍याउनु पर्दैन' if value=='LISTENING' and getattr(self,'voice_conversation_active',False) else 'Microphone / Voice: '+value)
    if hasattr(self,'hero_voice_label'):self.ring.itemconfigure(self.hero_voice_label,text=value.replace('_',' ').title())
+   self.update_scene_readings({})
    if value not in ('LISTENING','SPEAKING'):self.update_hero_meter(0)
    if value not in ('LISTENING','SPEAKING') and getattr(self,'avatar_frames',None):self.ring.itemconfigure(self.avatar_item,image=self.avatar_frames[-1])
    if value in ('STOPPED','ERROR'):
@@ -99,6 +100,9 @@ class Dashboard(tk.Frame):
    self.update_hero_meter(value)
    self.voice_meter.delete('all');self.voice_meter.create_rectangle(0,0,self.voice_meter.winfo_width()*value,5,fill=CYAN if kind=='input_level' else PINK,outline='')
  def update_hero_meter(self,value):
+  if getattr(self,'holo_renderer',None) is not None:
+   import time
+   self.holo_level=max(0,min(1,float(value)));self.holo_level_at=time.monotonic();return
   if not hasattr(self,'hero_meter_center'):return
   import math
   vx,vy=self.hero_meter_center
@@ -126,10 +130,29 @@ class Dashboard(tk.Frame):
   self.details_open=not self.details_open
   self.details_button.configure(text='Device & AI controls ▴' if self.details_open else 'Device & AI controls ▾')
   self.compact=None;self.reflow(self.body.winfo_width())
+ def hologram_controls(self):
+  self.toggle_details();self.update_idletasks()
+  self.content.yview_moveto(self.control_panel.winfo_y()/max(1,self.body.winfo_height()) if self.details_open else 0)
+ def hologram_click(self,event):
+  scene=getattr(self,'holo_renderer',None)
+  if scene is None:return
+  left,top,right,bottom=scene.sphere_bounds
+  if ((event.x-(left+right)/2)/((right-left)/2))**2+((event.y-(top+bottom)/2)/((bottom-top)/2))**2<=1:self.actions['Saved memory']()
+ def update_scene_readings(self,data):
+  readings=getattr(self,'scene_readings',{});readings.update({key:value for key,value in data.items() if key in ('cpu','ram','disk','battery')});self.scene_readings=readings
+  if getattr(self,'holo_renderer',None) is None:return
+  def measured(key):
+   value=readings.get(key)
+   return f'{value:.0f}%' if isinstance(value,(int,float)) else '—'
+  text='CPU '+measured('cpu')+'   RAM '+measured('ram')+'   Disk '+measured('disk')
+  self.ring.itemconfigure(self.scene_metrics,text=text if self.ring.winfo_width()>=420 else '')
+  color={'LISTENING':'#56d6b0','SPEAKING':'#b19aff','ERROR':'#ff4d73','MUTED':'#e5ac58'}.get(self.hero_voice_state,'#8a96bc')
+  self.ring.itemconfigure(self.scene_status_dot,fill=color)
  def reflow(self,width):
   compact=width<850
-  available=max(560,self.content.winfo_height()-10)
-  signature=(compact,available,self.home_view,self.details_open)
+  hologram=self.cfg.get('dashboard_style','Holographic')=='Holographic'
+  available=max(360 if hologram else 560,self.content.winfo_height()-10)
+  signature=(compact,available,self.home_view,self.details_open,hologram)
   if signature==getattr(self,'layout_signature',None):return
   self.layout_signature=signature;self.compact=compact
   hero,metrics,controls,provider,quick,social,activity=self.panels
@@ -146,6 +169,11 @@ class Dashboard(tk.Frame):
    self.office_hint.pack(anchor='w',padx=12,before=self.activity);self.activity_title.configure(text='SARU OFFICE / Mind · Memory · Team')
   if self.home_view=='office':
    activity.grid(row=0,column=0,columnspan=2,sticky='nsew',pady=3);self.body.rowconfigure(0,weight=1)
+  elif hologram:
+   hero.grid(row=0,column=0,columnspan=2,rowspan=1,sticky='nsew',pady=3)
+   if self.details_open:
+    for row,section in enumerate((controls,provider,metrics,quick,social,activity),1):section.grid(row=row,column=0,columnspan=2,rowspan=1,sticky='nsew',pady=6)
+   self.fit_workspace();return
   elif compact:
    for row,section in enumerate((hero,metrics,quick,activity)):section.grid(row=row,column=0,columnspan=2,rowspan=1,sticky='nsew',padx=2,pady=6)
   else:
@@ -177,6 +205,7 @@ class Dashboard(tk.Frame):
    self.pending=True;self.submit(pc_telemetry.isolated_snapshot if self.device_refresh_count%3==0 else pc_telemetry.metrics_snapshot);self.device_refresh_count+=1
   self.refresh_id=self.after(2000,self.poll)
  def render(self,data):
+  if hasattr(self,'update_scene_readings'):self.update_scene_readings(data)
   if 'muted' in data and 'mute' not in self.control_versions:
 
    self.muted=data['muted'];self.mute_button.configure(state='normal',text='Unmute speakers' if self.muted else 'Mute speakers')
@@ -290,13 +319,25 @@ class Dashboard(tk.Frame):
   self.hero_resize_job=self.after(80,draw)
  def animate(self,angle):
   if self.closed:return
-  if not self.cfg.get('reduced_motion',False) and self.hero_voice_state in ('LISTENING','SPEAKING'):
+  delay=100
+  if getattr(self,'holo_renderer',None) is not None and self.home_view=='assistant':
+   import time
+   reduced=self.cfg.get('reduced_motion',False)
+   if self.winfo_viewable() and (not reduced or getattr(self,'holo_last_reduced',None) is not True):
+    started=time.monotonic();self.holo_phase=getattr(self,'holo_phase',0)+.055
+    level=getattr(self,'holo_level',0) if time.monotonic()-getattr(self,'holo_level_at',0)<.3 else 0
+    image=self.holo_renderer.render(self.holo_phase,level,self.hero_voice_state,reduced)
+    photo=ImageTk.PhotoImage(image);self.ring.itemconfigure(self.holo_image_item,image=photo);self.holo_photo=photo
+    delay=max(40,70-int((time.monotonic()-started)*1000))
+   self.holo_last_reduced=reduced
+   if reduced:delay=250
+  elif getattr(self,'holo_renderer',None) is None and not self.cfg.get('reduced_motion',False) and self.hero_voice_state in ('LISTENING','SPEAKING'):
    from appearance_controls import frame_index
    self.hero_phase+=.14;self.ring.itemconfigure(self.arc,start=angle)
    if getattr(self,'avatar_frames',None):self.ring.itemconfigure(self.avatar_item,image=self.avatar_frames[frame_index(self.hero_voice_state,self.hero_phase)])
   self.office_phase=getattr(self,'office_phase',0)+1
-  if not self.details_open:self.refresh_office_preview()
-  self.pulse_id=self.after(100,lambda:self.animate((angle+3)%360))
+  if self.home_view=='office':self.refresh_office_preview()
+  self.pulse_id=self.after(delay,lambda:self.animate((angle+3)%360))
  def _destroy(self,event):
   if event.widget is not self:return
   self.closed=True

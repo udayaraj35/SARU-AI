@@ -1,6 +1,8 @@
-# SARU AI 2.19.1
+# SARU AI 2.20.0
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.20.0 adds the owner's video-inspired **Holographic workspace**: a locally rendered purple/blue particle sphere and wave floor, actual voice state and measured PC readings, plus working Chat / Controls / Configure buttons. Click the sphere for Saved Memory. Settings → Appearance can restore the Portrait workspace or enable Reduced motion. Existing sidebar tools, right chat, bottom composer, country clock and Owner-profile internet status are retained. The video's narrated analytics/email claims are not displayed as fabricated activity. See [workspace behavior and validation](HOLOGRAPHIC_WORKSPACE.md).
 
 2.19.0 changes the requested default to **wake once, then converse**. Say SARU to hear “हजुर Boss, म के सेवा गरूँ?”, then give questions or supported commands without repeating the name. After 60 seconds idle or Stop listening, SARU is required again. Strict per-utterance activation remains an option in Settings → Voice. Typed notifications never activate a microphone conversation; this feature is activation rather than speaker authentication. The right chat drawer and country-clock layout are preserved. See [voice conversation behavior and validation](VOICE_CONVERSATION.md).
 

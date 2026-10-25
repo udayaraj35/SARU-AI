@@ -98,6 +98,8 @@ def build(self,root,actions,status,portrait,reference,cfg,activity_path):
  self.hero_voice_buttons=[]
  for title,key in [('●  Wake Word','Start voice'),('♩  Tap to Talk','Voice: push to talk'),('∞  Voice Mode','Start voice'),('◉  Stop Listening','Stop voice')]:
   self.hero_voice_buttons.append(btn(self.ring,title,self.actions[key],width=150,height=34))
+ self.scene_buttons=[btn(self.ring,'Chat',self.actions['AI Chat'],width=120,height=32),btn(self.ring,'Controls',self.hologram_controls,width=120,height=32),btn(self.ring,'Configure',self.actions['Settings'],width=120,height=32)]
+ self.ring.bind('<Button-1>',self.hologram_click,add='+')
  self.ring.bind('<Configure>',lambda e:self.resize_hero(e.width,e.height,portrait));self.arc=self.ring.create_arc(3,3,100,100,start=0,extent=220,outline=CYAN,style='arc');draw_hero(self,500,480,portrait)
  metrics=panel(body,'◈  System Status');metrics.grid(row=0,column=1,sticky='nsew',pady=3)
  garea=tk.Frame(metrics,bg='#071326');garea.pack(fill='x',padx=8);self.gauges={}
@@ -164,6 +166,10 @@ def build(self,root,actions,status,portrait,reference,cfg,activity_path):
 
 def draw_hero(self,width,height,portrait):
  if width<20 or height<20:return
+ if self.cfg.get('dashboard_style','Holographic')=='Holographic':
+  from holographic_scene import draw_hologram
+  draw_hologram(self,width,height);return
+ self.holo_renderer=None
  from theme_manager import palette
  import math
  p=palette(self.cfg.get('theme'));c=self.ring;c.delete('all');c.configure(bg=p['bg'])

@@ -141,6 +141,16 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    page.toggle_details();root.update_idletasks();assert page.control_panel.winfo_manager()=='grid'
    page.toggle_details();root.update_idletasks();assert not page.control_panel.winfo_manager()
    assert len(page.hero_buttons)==5 and len(page.hero_voice_buttons)==4
+   assert page.holo_renderer is not None and len(page.scene_buttons)==3
+   page.scene_buttons[0].invoke();assert page.drawer_open
+   page.scene_buttons[1].invoke();root.update_idletasks();assert page.control_panel.winfo_manager()=='grid'
+   page.scene_buttons[1].invoke();root.update_idletasks();assert not page.control_panel.winfo_manager()
+   with patch.dict(page.actions,{'Saved memory':Mock()}) as hologram_actions:
+    from types import SimpleNamespace
+    left,top,right,bottom=page.holo_renderer.sphere_bounds
+    page.hologram_click(SimpleNamespace(x=(left+right)/2,y=(top+bottom)/2));hologram_actions['Saved memory'].assert_called_once_with()
+   page.scene_buttons[2].invoke();root.update_idletasks();assert app['active_page'].__class__.__name__=='SettingsPanel'
+   app['back_home']();page=app['active_page']
    assert 'battery' in page.gauges
    assert page.panels[4].master is page.body
    assert any('Social Media' in name for name in app['active_page'].nav_buttons)
@@ -150,7 +160,9 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    assert len(app['active_page'].scales)==3
    app['active_page'].provider_var.set('OpenAI');app['active_page'].select_provider();assert app['cfg']['provider']=='OpenAI'
    app['active_page'].provider_var.set('Gemini');app['active_page'].select_provider()
-   previous=app['cfg']['photo'];app['cfg']['photo']='Z:/missing-old-install/portrait.png';app['show_dashboard']();assert hasattr(app['active_page'],'avatar');app['orb'].reload();assert app['orb'].photo is not None;app['cfg']['photo']=previous
+   previous=app['cfg']['photo'];app['cfg']['photo']='Z:/missing-old-install/portrait.png';app['show_dashboard']();assert app['active_page'].holo_renderer is not None;app['orb'].reload();assert app['orb'].photo is not None
+   app['cfg']['dashboard_style']='Portrait';app['show_dashboard']();assert hasattr(app['active_page'],'avatar')
+   app['cfg']['photo']=previous;app['cfg']['dashboard_style']='Holographic';app['show_dashboard']()
    companion=app['orb'];assert companion.__class__.__name__=='FloatingCompanion'
    for state in ('LISTENING','SPEAKING','MUTED','STOPPED'):companion.set_state(state,.4);root.update_idletasks()
    companion.reload();assert companion.canvas.find_all()
