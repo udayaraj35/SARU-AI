@@ -1,8 +1,8 @@
 {
   "payload": {
     "repository": "udayaraj35/SARU-AI",
-    "commit": "fa140e0a25058f6bf8d77f978bb74c22b91fa4a4",
-    "version": "2.18.0",
+    "commit": "f12c2d08b193abc8515e961a65bc42766d4fc2cb",
+    "version": "2.18.1",
     "files": {
       "action_consent.py": {
         "sha256": "15bb1704d1b7a4930aa26fd8c462a07616466f414edef1932a349580d8ff54ca",
@@ -33,8 +33,8 @@
         "size": 4730
       },
       "app.py": {
-        "sha256": "74b6df3afd496ee54cb3434d218e5af4ef2155ccfb33175dc224a53723a25e32",
-        "size": 120878
+        "sha256": "565606dc9c14a37db408e53821ab0d29b06746db8364b76e29c101c9d6f5bce2",
+        "size": 121278
       },
       "appearance_controls.py": {
         "sha256": "df3b8b485d8d92d41f91dd8f852d4118405b2a1698e6e5dbe33d3b8c0d3c4b14",
@@ -173,8 +173,8 @@
         "size": 1939
       },
       "command_policy.py": {
-        "sha256": "8be30f7df1452b8fec5ecd39e96eaa807655b480401dce8bdf04b390b99885b1",
-        "size": 1285
+        "sha256": "88d49c9014d3e7cd734068cd810a8ab5b5c4be7056fd3f4ccd324376a915d746",
+        "size": 1377
       },
       "companion_memory.py": {
         "sha256": "dabca7eac8965f62ed22e3bd5cfb7155cc1896f00db163f506fb9fde476f071f",
@@ -205,12 +205,12 @@
         "size": 2008962
       },
       "dashboard_layout.py": {
-        "sha256": "b0f5b191f53ade9806db55b260feaab1b4e91345109e5691fae2c13275722625",
-        "size": 19456
+        "sha256": "b2ea0c032b3eb5eeea8ed97f8ded50a8f4e6b31ad5f7f746534a585b78099ca3",
+        "size": 19599
       },
       "dashboard_ui.py": {
-        "sha256": "2b7b58d201e04349c498ed50fbba7ecb8e1584362b130dc0081efe7e6b8fdadd",
-        "size": 15620
+        "sha256": "e774977aab5965158b5562f34b5228ba29b94d29ec7dd90b4d74f3819a79136e",
+        "size": 17123
       },
       "desktop_actions.py": {
         "sha256": "558a02da7ecfcaaef04b29fe041aa142991100df03f254c80e18c23b7b0aa0c8",
@@ -465,8 +465,8 @@
         "size": 2262
       },
       "README.md": {
-        "sha256": "723d750eac78e86533c6cc042e69e815917c74331faba25078337cafdc0ce856",
-        "size": 9074
+        "sha256": "830065886623eec7fd93437e6d7a7519ef3203c4c76a521f5b4726dcf28887c9",
+        "size": 9678
       },
       "README_V16.md": {
         "sha256": "cbc7ec074c281ecd6fa9d7702bcf2a25ae4d563a0185f82bd545ce6440197788",
@@ -613,8 +613,8 @@
         "size": 1305
       },
       "smoke_gui.py": {
-        "sha256": "fea7639a9472c6bef39f4da44c357f140e84d32c3cf60c1251fea28dc3b68d38",
-        "size": 16662
+        "sha256": "a7f5150770783e49c5492002853761c5cea1b24fb5d7fbb1c227d1ab316924eb",
+        "size": 18208
       },
       "smoke_setup.py": {
         "sha256": "e33bc48f0111460dd455c903e5b6e419e38cf219eb3bcfed4d628185b7e23bdb",
@@ -653,8 +653,8 @@
         "size": 4797
       },
       "system_intents.py": {
-        "sha256": "cbc00cd206e6c0d9d8d9728f36e0f9140165baf987b141427c0650483a9432d9",
-        "size": 8276
+        "sha256": "3560a9984069b5c8318f086c5ccce8f2c7c21d4ce4c17454c7503ace477289fe",
+        "size": 8714
       },
       "test_action_consent.py": {
         "sha256": "125be76bb50c3d5e85a9f9b99170f668fbbc8bd24b3d7d96b21c37bdba72c56e",
@@ -801,8 +801,8 @@
         "size": 1332
       },
       "test_self_controls.py": {
-        "sha256": "c7a3b1e5dbe1ac0e496b6c301d4a6dfbeb56580bc5c60bab9d2eac1a66314658",
-        "size": 2065
+        "sha256": "5e7608f809b53d382c429e5ea09beb83e265a785ca9add30228cf1a5245ae45e",
+        "size": 2797
       },
       "test_settings.py": {
         "sha256": "063d267726836afb5ed35dceb8fe814d37ac7ce1cbb6f96ae57c0472d56cb135",
@@ -893,7 +893,7 @@
         "size": 4237
       },
       "version.py": {
-        "sha256": "e99d0baca705e1a2b33ffa6a2094c0240cd026a2fc7fd2cea0510de28700a4dc",
+        "sha256": "f1887ec16c2773ad277a456200e6263dd79b1fd6e27f75f903014d32e13b000d",
         "size": 91
       },
       "VIDEO_AND_PUBLISHING.md": {
@@ -1282,5 +1282,5 @@
       }
     }
   },
-  "signature": "qZ64MIwuNzBlC5h+5fCzh90MKPciC/TehvyssULKvAyZMm7B8hAalQrTWU9Yb3AsWWBbSMS6TCK//f1JivrCBw=="
+  "signature": "59S3SsLIf4kMNlgJGJrEA1vcfpM40uaW4YG9NV0gLlEIt6Xd7MIPv3wB6uIeO0HUuubZiLRUxnOPkWbB40v/Dw=="
 }
