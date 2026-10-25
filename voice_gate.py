@@ -12,7 +12,7 @@ class ConversationGate:
  not speaker authentication. Strict per-utterance mode remains available.
  """
  def __init__(self,required=True,followup=False,idle=60,clock=time.monotonic):
-  self.required=required;self.followup=followup;self.idle=idle;self.clock=clock;self.until=0;self.lock=threading.RLock()
+  self.required=required;self.followup=followup;self.idle=idle;self.clock=clock;self.until=0;self.generation=0;self.lock=threading.RLock()
  @property
  def active(self):
   with self.lock:return bool(self.required and self.followup and self.clock()<self.until)
@@ -23,11 +23,13 @@ class ConversationGate:
    if self.followup:self.renew()
    return True
   return self.active
- def renew(self):
+ def renew(self,generation=None):
   with self.lock:
-   if self.required and self.followup:self.until=self.clock()+self.idle
+   if generation is not None and generation!=self.generation:return False
+   if self.required and self.followup:self.until=self.clock()+self.idle;return True
+   return False
  def close(self):
-  with self.lock:self.until=0
+  with self.lock:self.until=0;self.generation+=1
 # Observed Gemini ASR drops the R in a full addressed question and emits
 # uppercase "SAU, ...". Accept only that punctuated, nonempty ASR shape;
 # ordinary sau/sau hundred, Sarah, Sorry and embedded names stay blocked.

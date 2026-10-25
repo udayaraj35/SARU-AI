@@ -1,4 +1,4 @@
-# SARU AI 2.19.0
+# SARU AI 2.19.1
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
 

@@ -177,7 +177,7 @@ class LiveVoice:
      async def receive():
       from voice_gate import may_respond,merge_transcript,wake_call
       from voice_requests import voice_request
-      user_turn='';assistant_turn='';assistant_emitted=0;user_emitted=0;audio_emitted=False;owner_dispatched=False;input_finished=False;turn_authorized=False
+      user_turn='';assistant_turn='';assistant_emitted=0;user_emitted=0;audio_emitted=False;owner_dispatched=False;input_finished=False;turn_authorized=False;turn_generation=None
       deferred=[];deferred_size=0;deferred_limit=OUTPUT_RATE*2*12
       while not self.stop_event.is_set():
        async for response in session.receive():
@@ -201,14 +201,18 @@ class LiveVoice:
            user_turn=merge_transcript(user_turn,transcript.text);input_finished=input_finished or bool(getattr(transcript,'finished',False))
           else:assistant_turn=merge_transcript(assistant_turn,transcript.text)
           authorized=self.typed_reply_pending or turn_authorized or self.conversation_gate.authorize(user_turn)
-          if authorized and user_turn:turn_authorized=True;self.report_window()
+          if authorized and user_turn:
+           if not turn_authorized:turn_generation=self.conversation_gate.generation
+           turn_authorized=True;self.report_window()
           if authorized and role=='You':
            delta=user_turn[user_emitted:];user_emitted=len(user_turn)
            if delta:self.emit('transcript',(role,delta))
           if authorized and role=='You' and input_finished and not owner_dispatched and voice_request(user_turn)[0]:
            self.emit('conversation_turn',(user_turn,''));owner_dispatched=True
         authorized=self.typed_reply_pending or turn_authorized or self.conversation_gate.authorize(user_turn)
-        if authorized and user_turn:turn_authorized=True;self.report_window()
+        if authorized and user_turn:
+         if not turn_authorized:turn_generation=self.conversation_gate.generation
+         turn_authorized=True;self.report_window()
         if calls:await self.resolve_memory_calls(session,calls,authorized)
         local_command=authorized and bool(voice_request(user_turn)[0])
         turn=getattr(content,'model_turn',None)
@@ -232,15 +236,18 @@ class LiveVoice:
          self.playback.clear();deferred.clear();deferred_size=0
         if complete:
          keep_window=bool(self.conversation_gate.followup and authorized and (user_turn or self.conversation_gate.active))
-         if keep_window:self.conversation_gate.renew();self.report_window()
+         generation=turn_generation if user_turn else self.conversation_gate.generation
+         if keep_window:
+          keep_window=not self.stop_event.is_set() and not self.muted.is_set() and self.conversation_gate.renew(generation)
+          self.report_window()
          if authorized and wake_call(user_turn) and not assistant_turn.strip() and not audio_emitted:self.emit('wake_ack',True)
          if authorized and (user_turn or assistant_turn) and not owner_dispatched:self.emit('conversation_turn',(user_turn,'' if local_command else assistant_turn))
          elif not authorized and self.settings.get('wake_word_required',True):self.emit('wake_wait',True)
-         user_turn='';assistant_turn='';assistant_emitted=0;user_emitted=0;audio_emitted=False;owner_dispatched=False;input_finished=False;turn_authorized=False;deferred.clear();deferred_size=0
+         user_turn='';assistant_turn='';assistant_emitted=0;user_emitted=0;audio_emitted=False;owner_dispatched=False;input_finished=False;turn_authorized=False;turn_generation=None;deferred.clear();deferred_size=0
          self.typed_reply_pending=False;self.turn_ready.set()
-         async def settled(extend=keep_window):
+         async def settled(extend=keep_window,epoch=generation):
           while len(self.playback) and not self.stop_event.is_set():await asyncio.sleep(.02)
-          if extend and self.conversation_gate.active and not self.stop_event.is_set() and not self.muted.is_set():self.conversation_gate.renew();self.report_window()
+          if extend and self.conversation_gate.active and not self.stop_event.is_set() and not self.muted.is_set():self.conversation_gate.renew(epoch);self.report_window()
           self.emit('state','MUTED' if self.muted.is_set() else 'LISTENING')
          group.create_task(settled())
        await asyncio.sleep(.01)

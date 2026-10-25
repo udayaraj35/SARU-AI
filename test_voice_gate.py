@@ -18,6 +18,12 @@ class WakeTests(unittest.TestCase):
   self.assertFalse(gate.authorize('phone conversation',typed=True))
   gate=ConversationGate(True,False);self.assertTrue(gate.authorize('SARU hello'))
   self.assertFalse(gate.authorize('next question'))
+ def test_late_reply_cannot_reopen_an_explicitly_closed_conversation(self):
+  from voice_gate import ConversationGate
+  gate=ConversationGate(True,True);gate.authorize('SARU');epoch=gate.generation
+  gate.close();self.assertFalse(gate.renew(epoch));self.assertFalse(gate.active)
+  gate.authorize('SARU');deadline=gate.until
+  self.assertFalse(gate.renew(epoch));self.assertEqual(gate.until,deadline)
  def test_observed_full_question_asr_spelling_is_narrowly_recognized(self):
   from voice_gate import strip_address
   self.assertTrue(may_respond('SAU, what is 2 + 3?'))
