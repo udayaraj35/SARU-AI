@@ -43,7 +43,7 @@ def build(self,root,actions,status,portrait,reference,cfg,activity_path):
  btn(composer,'▧',self.actions['Files: summarize'],width=40,height=40).pack(side='right',padx=3)
  btn(composer,'📎',self.actions['Files: summarize'],width=40,height=40).pack(side='right',padx=3)
  self.command=entry(composer,tk.StringVar());self.command.pack(side='left',fill='x',expand=True,ipady=11,padx=8)
- self.placeholder=label(composer,'Ask me anything…  /  Say SARU before a voice request',fg=MUTED,font=('Segoe UI',11))
+ self.placeholder=label(composer,'Ask me anything…  /  Say SARU once to start talking' if self.cfg.get('wake_conversation',True) else 'Ask me anything…  /  Say SARU before a voice request',fg=MUTED,font=('Segoe UI',11))
  self.placeholder.configure(bg='#081225')
  def hint(event=None):
   if self.command.get() or self.command==self.focus_get():self.placeholder.place_forget()

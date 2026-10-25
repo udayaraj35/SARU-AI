@@ -2,6 +2,22 @@ import unittest
 from voice_gate import addressed_to_saru,may_respond
 
 class WakeTests(unittest.TestCase):
+ def test_conversation_wakes_once_renews_and_expires(self):
+  from voice_gate import ConversationGate
+  now=[100.];gate=ConversationGate(True,True,clock=lambda:now[0])
+  self.assertFalse(gate.authorize('open Chrome'))
+  self.assertTrue(gate.authorize('सरू'));self.assertTrue(gate.active)
+  self.assertTrue(gate.authorize('open Chrome'));self.assertTrue(gate.authorize('तिमी कस्तो छौ?'))
+  now[0]+=59;gate.renew();now[0]+=59;self.assertTrue(gate.authorize('next question'))
+  now[0]+=2;self.assertFalse(gate.authorize('open WhatsApp'));self.assertFalse(gate.active)
+  self.assertTrue(gate.authorize('SARU hello'));gate.close();self.assertFalse(gate.authorize('next question'))
+ def test_typed_notifications_do_not_open_followup_and_strict_mode_remains(self):
+  from voice_gate import ConversationGate
+  gate=ConversationGate(True,True)
+  self.assertTrue(gate.authorize('',typed=True));self.assertFalse(gate.active)
+  self.assertFalse(gate.authorize('phone conversation',typed=True))
+  gate=ConversationGate(True,False);self.assertTrue(gate.authorize('SARU hello'))
+  self.assertFalse(gate.authorize('next question'))
  def test_observed_full_question_asr_spelling_is_narrowly_recognized(self):
   from voice_gate import strip_address
   self.assertTrue(may_respond('SAU, what is 2 + 3?'))

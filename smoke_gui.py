@@ -260,7 +260,7 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    saved=page.chat_output.get('1.0','end');page.hide_chat();root.update_idletasks()
    assert not page.drawer_open and not page.chat_dock.winfo_manager()
    page.voice_event('transcript',('SARU','More of the same reply'));assert not page.drawer_open
-   page.voice_event('transcript',('Boss','New owner request'));root.update_idletasks();assert page.drawer_open
+   page.voice_event('transcript',('You','New owner request'));root.update_idletasks();assert page.drawer_open
    page.voice_event('conversation_turn',('',''));page.hero_voice_state='LISTENING'
    page.command.delete(0,'end');page.winfo_pointerxy=lambda:(-10000,-10000)
    page.cancel_chat_idle();page.chat_idle();root.update_idletasks();assert not page.drawer_open

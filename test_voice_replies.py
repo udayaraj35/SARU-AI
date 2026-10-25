@@ -19,7 +19,7 @@ class ReplyTests(unittest.IsolatedAsyncioTestCase):
   self.assertIn(('wake_ack',True),events)
   events,_,_,_=await self.exercise([{'input':'hello SARU.','output':'Hello Boss','finished':True,'audio':True,'complete':True}])
   self.assertNotIn(('wake_ack',True),events)
- async def exercise(self,rows,queued=False,ambient=False):
+ async def exercise(self,rows,queued=False,ambient=False,followup=False):
   events=[];finished=asyncio.Event();sent=[];pcm=b'\x01\x02'*20
   class Stream:
    def __enter__(self):return self
@@ -49,7 +49,7 @@ class ReplyTests(unittest.IsolatedAsyncioTestCase):
   def emit(kind,value):
    events.append((kind,value))
    if queued and kind=='conversation_turn' and value[0]:engine.speak_reply('The selected app failed to open.')
-  engine=LiveVoice({'keys':{'Gemini':'synthetic'},'live_model':'test','wake_word_required':True},emit,lambda key:client,audio)
+  engine=LiveVoice({'keys':{'Gemini':'synthetic'},'live_model':'test','wake_word_required':True,'wake_conversation':followup},emit,lambda key:client,audio)
   engine.thread=Mock();engine.thread.is_alive.return_value=True;engine.queue_playback=AsyncMock()
   task=asyncio.create_task(engine.run())
   try:
@@ -63,6 +63,15 @@ class ReplyTests(unittest.IsolatedAsyncioTestCase):
   events,count,_,_=await self.exercise([{'audio':True,'output':'म सुन्दैछु।'},{'input':'SARU','expect_played':True},{'input':'hello','finished':True,'audio':True,'complete':True}])
   self.assertEqual(count,2);self.assertIn(('conversation_turn',('SARU hello','म सुन्दैछु।')),events)
   self.assertIn(('transcript',('SARU','म सुन्दैछु।')),events)
+ async def test_wake_once_then_question_and_command_are_dispatched(self):
+  rows=[{'input':'phone conversation','output':'ignored','audio':True,'complete':True},{'input':'सरू','output':'हजुर Boss, म के सेवा गरूँ?','audio':True,'complete':True},{'input':'what is two plus three?','output':'Five.','audio':True,'complete':True},{'input':'open Chrome','finished':True,'audio':True,'complete':True}]
+  events,count,_,_=await self.exercise(rows,followup=True)
+  turns=[value for kind,value in events if kind=='conversation_turn']
+  self.assertEqual([turn[0] for turn in turns],['सरू','what is two plus three?','open Chrome'])
+  self.assertIn(('what is two plus three?','Five.'),turns)
+  self.assertEqual(count,2) # Native model audio for a local command is suppressed.
+  self.assertIn(('conversation_window',True),events)
+  self.assertFalse(any('phone conversation' in str(value) for kind,value in events if kind in ('transcript','conversation_turn')))
  async def test_background_audio_is_never_released(self):
   events,count,_,_=await self.exercise([{'audio':True},{'input':'phone talking','finished':True,'audio':True,'complete':True}])
   self.assertEqual(count,0);self.assertFalse(any(k=='conversation_turn' for k,v in events));self.assertIn(('wake_wait',True),events)

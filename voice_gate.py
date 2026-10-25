@@ -1,5 +1,33 @@
 """A per-utterance wake phrase, not speaker identity or biometric verification."""
 import re
+import time
+import threading
+WAKE_GREETING='हजुर Boss, म के सेवा गरूँ?'
+
+
+class ConversationGate:
+ """Wake once, then accept current conversation until 60 seconds of idle.
+
+ Typed notifications never open a microphone conversation. This is activation,
+ not speaker authentication. Strict per-utterance mode remains available.
+ """
+ def __init__(self,required=True,followup=False,idle=60,clock=time.monotonic):
+  self.required=required;self.followup=followup;self.idle=idle;self.clock=clock;self.until=0;self.lock=threading.RLock()
+ @property
+ def active(self):
+  with self.lock:return bool(self.required and self.followup and self.clock()<self.until)
+ def authorize(self,text,typed=False):
+  if not self.required:return True
+  if not str(text).strip():return bool(typed)
+  if addressed_to_saru(text):
+   if self.followup:self.renew()
+   return True
+  return self.active
+ def renew(self):
+  with self.lock:
+   if self.required and self.followup:self.until=self.clock()+self.idle
+ def close(self):
+  with self.lock:self.until=0
 # Observed Gemini ASR drops the R in a full addressed question and emits
 # uppercase "SAU, ...". Accept only that punctuated, nonempty ASR shape;
 # ordinary sau/sau hundred, Sarah, Sorry and embedded names stay blocked.

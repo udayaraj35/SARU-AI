@@ -64,8 +64,9 @@ class SettingsPanel(tk.Frame):
   label(live,'Live chat and local command replies use the same selected cloud voice. Classic Windows voice preview is separate; it is not the Gemini voice.',fg=MUTED,wraplength=650,justify='left').pack(padx=16,pady=6)
   field(live,'output_device','Speaker device index (-1 = system default)',-1)
   self.auto=tk.BooleanVar(value=cfg.get('auto_listen',True));self.check(live,'Automatically listen when SARU starts • Audio goes to Gemini',self.auto)
-  self.wake=tk.BooleanVar(value=cfg.get('wake_word_required',True));self.check(live,'Require SARU at the start of EVERY spoken request',self.wake)
-  label(live,'Without SARU: no spoken reply, saved conversation or command. This is a wake phrase, not owner voice verification; phone/other voices saying SARU can still activate it. Microphone audio is sent to Gemini for transcription.',fg=MUTED,wraplength=650,justify='left').pack(padx=16,pady=8)
+  self.wake=tk.BooleanVar(value=cfg.get('wake_word_required',True));self.check(live,'Require SARU to activate voice conversation',self.wake)
+  self.followup=tk.BooleanVar(value=cfg.get('wake_conversation',True));self.check(live,'Wake once, then continue talking • Return to wake mode after 60 seconds idle',self.followup)
+  label(live,'With follow-up enabled, say SARU once; then questions/commands need no repeated name while the conversation is active. Disable follow-up for strict SARU on every request. Stop listening ends it. This is not speaker verification: nearby voices can be accepted while active. Audio goes to Gemini. Save and restart voice after changing this mode.',fg=MUTED,wraplength=650,justify='left').pack(padx=16,pady=8)
   self.headphones=tk.BooleanVar(value=cfg.get('live_headphones',False));self.check(live,'I use headphones • Allow microphone during playback',self.headphones)
   label(live,'Live audio uses your saved Gemini key, regardless of chat provider. Availability/quota depends on your account. Automatic listening is visible in the main chat and floating indicator; Stop always ends it.',fg=MUTED,wraplength=650,justify='left').pack(padx=16,pady=12)
   button(live,'Open Live Voice',actions['Live Voice']).pack(fill='x',padx=16,pady=8)
@@ -151,7 +152,7 @@ class SettingsPanel(tk.Frame):
   try:
    if values.get('voice_gender')!=self.cfg.get('voice_gender','Female'):self.cfg['voice_id']=''
    self.staged_models[self.provider.get()]=self.model.get().strip()
-   self.cfg.update(values,remember_conversations=self.remember.get(),auto_listen=self.auto.get(),wake_word_required=self.wake.get(),orb_topmost=self.topmost.get(),orb_snap=self.snap.get(),live_headphones=self.headphones.get(),speak=self.speak.get(),reduced_motion=self.motion.get(),orb_visible=self.orb.get(),provider_models=self.staged_models)
+   self.cfg.update(values,remember_conversations=self.remember.get(),auto_listen=self.auto.get(),wake_word_required=self.wake.get(),wake_conversation=self.followup.get(),orb_topmost=self.topmost.get(),orb_snap=self.snap.get(),live_headphones=self.headphones.get(),speak=self.speak.get(),reduced_motion=self.motion.get(),orb_visible=self.orb.get(),provider_models=self.staged_models)
    if self.key.get().strip():self.cfg.setdefault('keys',{})[self.provider.get()]=self.key.get().strip()
    self.save_config();self.key.set('');self.refresh_key_state();self.note.configure(text='Settings saved • Return to Dashboard to see updated appearance.',fg=CYAN)
    self.actions['Apply appearance']()

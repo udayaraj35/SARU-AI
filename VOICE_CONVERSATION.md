@@ -1,0 +1,13 @@
+# Wake once and continue talking — SARU 2.19.0
+
+The requested default now requires SARU once to start a voice conversation. A bare SARU / SARU hello asks for the exact acknowledgement **“हजुर Boss, म के सेवा गरूँ?”**. Subsequent spoken questions and supported commands do not need the name again while the conversation is active.
+
+The active window renews after an accepted turn and after its reply finishes playing. After 60 seconds idle it returns to wake mode, and a new SARU call activates it again. Stop listening ends the microphone session completely: use Start voice before calling SARU again. Muting also closes the active window. This is a wake/idle gate, not a speaker identity check: nearby voices can be accepted during an active conversation. Outside the active window, unaddressed speech is not released to chat, command dispatch or memory. Microphone audio still goes to the configured Gemini Live service for transcription while listening.
+
+Settings → Voice has **Require SARU to activate voice conversation** and **Wake once, then continue talking**. Disable follow-up to keep strict SARU on every utterance. Save and stop/start voice to apply a mode change. Disabling the SARU requirement enables always-responsive voice mode as before. Existing voice selection, keys, personal notes and recording preferences are preserved.
+
+`ConversationGate` in `voice_gate.py` owns the monotonic 60-second window. `LiveVoice` latches authorization for the current spoken turn, so a reply can finish even if time passes during processing. Typed/application-result replies never activate a new microphone window. Completing an expired or muted playback task cannot reopen it. The existing bounded playback queue, interruption handling, current-turn memory permissions and command-specific reviews remain in place. Local app commands dispatch once through the existing router; a command acknowledgement does not prove an action succeeded.
+
+The dashboard shows whether conversation is active or SARU is needed again. Accepted voice text uses the actual `You` transcript role, so new owner speech reopens a manually hidden right-side chat drawer. The bottom composer and country-clock layout are unchanged.
+
+Validation includes timeout/renewal, wake-before-background, strict-mode compatibility, typed-notification isolation, follow-up questions, one-time local-command dispatch and audio output. A synthetic real-provider test spoke SARU hello, received the requested Nepali acknowledgement, then asked what two plus three is without repeating SARU and received five with audio. Generated test audio was used; owner recordings/memory were not included. Device, network, speech recognition and provider availability still affect runtime behavior.

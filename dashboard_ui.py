@@ -71,7 +71,7 @@ class Dashboard(tk.Frame):
  def voice_event(self,kind,value):
   if self.closed:return
   if kind=='state':
-   self.hero_voice_state=value;self.voice_state.configure(text='Microphone / Voice: '+value)
+   self.hero_voice_state=value;self.voice_state.configure(text='कुरा जारी छ • नाम दोहोर्‍याउनु पर्दैन' if value=='LISTENING' and getattr(self,'voice_conversation_active',False) else 'Microphone / Voice: '+value)
    if hasattr(self,'hero_voice_label'):self.ring.itemconfigure(self.hero_voice_label,text=value.replace('_',' ').title())
    if value not in ('LISTENING','SPEAKING'):self.update_hero_meter(0)
    if value not in ('LISTENING','SPEAKING') and getattr(self,'avatar_frames',None):self.ring.itemconfigure(self.avatar_item,image=self.avatar_frames[-1])
@@ -79,7 +79,7 @@ class Dashboard(tk.Frame):
     self.chat_busy=False
     if self.drawer_open:self.chat_activity()
   elif kind=='transcript':
-   if value[0] in ('Boss','User','user'):self.chat_dismissed=False
+   if value[0] in ('Boss','User','user','You'):self.chat_dismissed=False
    self.chat_activity(complete=False)
    if self.stream_role!=value[0]:
     if self.stream_role:self.chat_output.insert('end','\n')
@@ -88,8 +88,11 @@ class Dashboard(tk.Frame):
   elif kind=='conversation_turn':
    if self.stream_role:self.chat_output.insert('end','\n\n');self.stream_role=None
    self.chat_activity()
+  elif kind=='conversation_window':
+   self.voice_conversation_active=bool(value)
+   self.voice_state.configure(text='कुरा जारी छ • नाम दोहोर्‍याउनु पर्दैन' if value else 'कुरा सुरु गर्न SARU भन्नुहोस्।')
   elif kind=='wake_wait':
-   self.voice_state.configure(text='सुन्दैछु • हरेक request सुरु गर्दा SARU भन्नुहोस्।')
+   self.voice_state.configure(text='कुरा सुरु गर्न SARU भन्नुहोस्।' if self.cfg.get('wake_conversation',True) else 'सुन्दैछु • हरेक request सुरु गर्दा SARU भन्नुहोस्।')
   elif kind=='error':
    self.chat_activity();self.chat_output.insert('end','Voice setup: '+value+'\n');self.chat_output.see('end')
   elif kind in ('input_level','output_level'):

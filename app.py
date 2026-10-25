@@ -43,6 +43,7 @@ except SettingsError as exc:
  boot.fail(str(exc));messagebox.showerror('SARU settings recovery',str(exc),parent=boot.window);boot.close();boot.root.destroy();raise SystemExit(1)
 boot.complete('settings')
 cfg.setdefault('semantic_memory',True)
+cfg.setdefault('wake_conversation',True)
 
 def save():store.save(cfg)
 con=sqlite3.connect(DB);con.execute('create table if not exists messages(id integer primary key,role text,content text)');con.execute('create table if not exists notes(id integer primary key,title text,content text)');con.commit()
@@ -1255,7 +1256,10 @@ def handle_conversation_turn(user_text,assistant_text):
 
 def voice_visual_event(kind,value):
  if kind=='wake_ack':
-  announce_local(cfg.get('wake_greeting','हजुर Boss, म सुन्दैछु। भन्नुहोस्।'));return
+  from voice_gate import WAKE_GREETING
+  announce_local(WAKE_GREETING if cfg.get('wake_conversation',True) else cfg.get('wake_greeting',WAKE_GREETING));return
+ if kind=='conversation_window':
+  status.set('कुरा जारी छ • नाम नदोहोर्‍याई भन्नुहोस्।' if value else 'कुरा सुरु गर्न SARU भन्नुहोस्।')
  player=globals().get('media_player_instance')
  if player and kind=='transcript':
   role,text=value
@@ -1274,7 +1278,7 @@ def voice_visual_event(kind,value):
  elif kind=='state':companion.set_state(value);status.set(('Voice error: '+voice_hub.last_error[:160]) if value=='ERROR' and getattr(voice_hub,'last_error','') else 'Voice: '+value)
  elif kind=='input_level':companion.set_state('LISTENING',value)
  elif kind=='output_level':companion.set_state('SPEAKING',value)
- elif kind=='wake_wait':status.set('सुन्दैछु • हरेक request सुरु गर्दा SARU भन्नुहोस्।')
+ elif kind=='wake_wait':status.set('कुरा सुरु गर्न SARU भन्नुहोस्।' if cfg.get('wake_conversation',True) else 'सुन्दैछु • हरेक request सुरु गर्दा SARU भन्नुहोस्।')
  elif kind=='error':companion.set_state('ERROR');status.set('Voice error: '+str(value)[:160])
 
 def social_media_page():
