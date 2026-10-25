@@ -33,6 +33,10 @@ def normalize_request(command):
  return q
 
 def parse_command(command):
+ from backend_runtime import parse_backend
+ try:backend=parse_backend(command)
+ except (ValueError,TypeError):return 'invalid','Backend command JSON is invalid. Check its quoted keys and values.'
+ if backend:return 'backend',backend
  q=normalize_request(command);low=q.casefold()
  if low in ('advanced workspace','open advanced workspace','open advanced','mark lvi','open mark lvi','advanced tools'):return 'advanced_workspace',None
  if low in ('whatsapp crm','open whatsapp crm','wacrm','open wacrm','crm setup'):return 'wacrm_panel',None

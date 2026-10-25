@@ -15,6 +15,14 @@ def launch():
     if (sdk/'google'/'genai').is_dir():sys.path.insert(0,str(sdk))
     data=Path(os.getenv('SARU_DATA_DIR') or str(Path(os.getenv('APPDATA',str(Path.home())))/'SARU_AI'))
     data.mkdir(parents=True,exist_ok=True)
+    # Apply only a previously downloaded, signature-verified source update.
+    # All user settings, keys, browser sessions and memories live outside ROOT.
+    try:
+        from updater import Updater
+        Updater(ROOT,data).apply_pending()
+    except Exception as exc:
+        from updater import atomic_json
+        atomic_json(data/'signed_updates/status.json',{'state':'apply_failed','error_type':type(exc).__name__,'detail':str(exc)[:300]})
     log=data/'startup.log'
     if log.exists() and log.stat().st_size>1_000_000:
         log.replace(data/'startup.previous.log')

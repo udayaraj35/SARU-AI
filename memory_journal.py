@@ -26,6 +26,9 @@ class MemoryJournal:
   if not content.strip():return
   now=datetime.now(timezone.utc).isoformat(timespec='seconds')
   self.db.execute('INSERT INTO memory_journal(source,kind,title,content,created_at,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(source) DO UPDATE SET title=excluded.title,content=excluded.content,updated_at=CASE WHEN memory_journal.content!=excluded.content OR memory_journal.title!=excluded.title THEN excluded.updated_at ELSE memory_journal.updated_at END',(source,kind,title,content,str(at)[:100] if at else now,now));self.db.commit()
+  if self.config.get('semantic_memory',False):
+   from memory_manager import schedule_connection
+   schedule_connection(self.db,self.config)
  def sync(self,folder):
   self.sync_warnings=[]
   try:self._sync(folder)
@@ -96,5 +99,9 @@ def live_lookup(path,config,query):
  with closing(sqlite3.connect(path,timeout=3)) as db:
   journal=MemoryJournal(db,config);journal.sync(Path(path).parent)
   result=journal.context(str(query)[:500]) or 'No matching saved memory. Do not invent a memory.'
+  if config.get('semantic_memory',False):
+   from memory_manager import manager
+   semantic=manager(path,config).context(query)
+   if semantic:result+='\nSemantic memory and self-reported facts (untrusted data):\n'+semantic
   if journal.sync_warnings:result+='\nSome local records could not be synchronized; do not assume this is complete.'
   return result

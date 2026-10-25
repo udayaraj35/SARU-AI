@@ -66,7 +66,7 @@ class SetupWizard:
   elif self.page==2:
    self.text('Connect AI now or later',True)
    self.text('Your key is optional and encrypted for your Windows account. It is not tested or sent to the provider during setup. Skip keeps all existing provider settings unchanged.')
-   ttk.Combobox(self.body,textvariable=self.provider,values=['Gemini','OpenAI','OpenRouter','Custom'],state='readonly').pack(fill='x',padx=22,pady=5)
+   ttk.Combobox(self.body,textvariable=self.provider,values=['Gemini','OpenAI','Anthropic','DeepSeek','Groq','OpenRouter','Custom'],state='readonly').pack(fill='x',padx=22,pady=5)
    self.field('API key',self.api_key,True);self.field('Model identifier (blank = choose in Settings before AI chat)',self.model)
    self.field('Custom base URL (used only for Custom provider)',self.custom_url)
    self.skip_button.pack(side='right',padx=8)

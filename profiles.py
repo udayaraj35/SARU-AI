@@ -11,6 +11,9 @@ FIELDS=(('name','Full name'),('email','Gmail / email'),('phone','Phone number'),
 
 def get_profile(config,kind):
  if kind not in ('owner','creator'):raise ValueError('Unknown profile')
+ if kind=='creator':
+  from config_manager import developer_identity
+  return {key:value for key,value in developer_identity().items() if key!='product'}
  result=dict(CREATOR) if kind=='creator' else {'name':config.get('owner_name','Boss')}
  saved=config.get(kind+'_profile',{})
  if isinstance(saved,dict):result.update(saved)
@@ -34,6 +37,10 @@ def validate_profile(values):
 
 def save_profile(config,kind,values):
  if kind not in ('owner','creator'):raise ValueError('Unknown profile')
+ if kind=='creator':
+  identity=get_profile(config,'creator')
+  if any(str(value).strip()!=str(identity.get(key,'')) for key,value in values.items() if key!='photo') or values.get('photo'):raise ValueError('Original developer credits are signed and read-only. Edit the Owner profile for your own information.')
+  return identity
  result=validate_profile(values)
  config[kind+'_profile']=result
  if kind=='owner':config['owner_name']=result['name'];config['owner_photo']=result.get('photo','')

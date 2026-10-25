@@ -32,7 +32,7 @@ class SettingsPanel(tk.Frame):
    widget.pack(fill='x',padx=16,pady=(0,8),ipady=6)
    return var
   api=group('AI & API','PROVIDER CONNECTION')
-  self.provider=field(api,'provider','AI provider',choices=['Gemini','OpenAI','OpenRouter','Custom'])
+  self.provider=field(api,'provider','AI provider',choices=['Gemini','OpenAI','Anthropic','DeepSeek','Groq','OpenRouter','Custom'])
   self.model=field(api,'model','Model identifier')
   self.key=field(api,'new_key','API key • Leave blank to retain saved key',secret=True)
   self.key_entry=api.winfo_children()[-1]

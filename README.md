@@ -1,6 +1,8 @@
-# SARU AI 2.17.0
+# SARU AI 2.18.0
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.18.0 adds local multilingual FAISS memory with SQLite facts, streaming reviewed shell/file tools, persistent Playwright social sessions, pinned executable Git skills with separate environments, additional encrypted provider configurations and signed source-update staging on restart. Existing dashboard styling/layout is retained. Social DOM adapters require local login and unique visible controls; no production-account delivery is certified. Executable skill repositories need a reviewed `saru_skill.json` contract; arbitrary GitHub references are not automatically executable. See [backend architecture, setup, commands and limits](BACKEND_ENGINES.md). On a new PC, after installing requirements, run `python backend_setup.py --memory --browser --receipt` once. Signing keys, account sessions and memories are never included here. Frozen builds use a separately prepared installer.
 
 2.17.0 adds SARU's native **Video & Chat** window: embedded YouTube/local media, a resizable chat pane, queued play/pause/next/previous/volume controls, fullscreen and direct text/voice playback commands. YouTube actions no longer open a browser tab. Saved Memory now has a themed visual map built from actual record counts, filtered timeline, live refresh, recording state and database size/path. Voice fixes include full split-wake transcripts, punctuation/spelled-name recognition, greeting acknowledgement and runtime fallback when an obsolete device index selects a speaker as the microphone. See [video, chat and memory setup/limits](VIDEO_CHAT_MEMORY.md). External account, device, speech recognition and YouTube embed restrictions still apply.
 

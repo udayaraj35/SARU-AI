@@ -48,7 +48,7 @@ def register_install(target,registry=None):
 def source_files(source):
  source=Path(source)
  for item in source.iterdir():
-  if item.is_file() and (item.suffix.lower() in ('.py','.md','.txt','.bat','.cmd','.ps1','.png','.jpg','.gif','.ico') or item.name=='wacrm_source.zip') and item.name not in ('settings.json','memory.db'):
+  if item.is_file() and (item.suffix.lower() in ('.py','.md','.txt','.bat','.cmd','.ps1','.png','.jpg','.gif','.ico') or item.name in ('wacrm_source.zip','developer_identity.json','developer_public_key.json')) and item.name not in ('settings.json','memory.db'):
    yield item.relative_to(source)
  guide=source/'MYRA_OFFICIAL_GUIDES'
  if guide.exists():

@@ -63,11 +63,17 @@ def prepare_python(target,emit):
 
 def install_application(source,target,options,api,emit):
  source=Path(source);target=Path(target)
+ warnings=[]
  emit('Backing up previous files and copying SARU…');files=copy_application(source,target)
  python=prepare_python(target,emit)
  emit('Installing dependencies. This may take several minutes…')
  result=subprocess.run([str(python),'-m','pip','install','-r',str(target/'requirements.txt')],capture_output=True,text=True,env=runtime_environment(),creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
  if result.returncode:raise RuntimeError('Dependency installation failed. Check your Internet connection and retry.\n'+result.stderr[-1200:])
+ emit('Preparing local semantic memory and private social browser…')
+ try:
+  result=subprocess.run([str(python),str(target/'backend_setup.py'),'--memory','--browser','--receipt'],capture_output=True,text=True,env=runtime_environment(),timeout=600,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+  if result.returncode:warnings.append('Backend model/browser setup incomplete. Run backend_setup.py --memory --browser --receipt to retry. Existing memory/keys are preserved.')
+ except subprocess.TimeoutExpired:warnings.append('Backend setup timed out; retry backend_setup.py --memory --browser --receipt when connected.')
  if options.get('voice_profiles',True):
   emit('Installing local voice-profile model (CPU)…')
   result=subprocess.run([str(python),str(target/'setup_voice_profiles.py')],capture_output=True,text=True,env=runtime_environment(),creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
@@ -90,7 +96,6 @@ def install_application(source,target,options,api,emit):
      link.TargetPath=str(launcher);link.WorkingDirectory=str(target);link.IconLocation=str(target/'saru.ico')+',0';link.Save()
    del shell
   finally:pythoncom.CoUninitialize()
- warnings=[]
  if api and api.get('key'):
   emit('Saving your API key with Windows encryption…')
   try:configure_api(python,target,api)

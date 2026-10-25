@@ -36,3 +36,11 @@ nepali-datetime>=1.0.8.4,<2
 
 # Font-aware bounded PDF text replacement
 PyMuPDF>=1.26,<2
+
+# Local multilingual semantic memory, signed updates and isolated browser sessions
+fastembed>=0.9,<1
+faiss-cpu>=1.10,<2
+cryptography>=44
+playwright>=1.50,<2
+playwright-stealth>=2,<3
+jsonschema>=4.23,<5
