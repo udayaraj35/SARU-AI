@@ -1,8 +1,8 @@
 {
   "payload": {
     "repository": "udayaraj35/SARU-AI",
-    "commit": "f4fa8e5fd67a95a2e5f622b2f89877b8f91f6c5c",
-    "version": "2.18.3",
+    "commit": "1ec672227b558e064bb1fc8a3a72885763bd3cb8",
+    "version": "2.18.4",
     "files": {
       "action_consent.py": {
         "sha256": "15bb1704d1b7a4930aa26fd8c462a07616466f414edef1932a349580d8ff54ca",
@@ -469,8 +469,8 @@
         "size": 2262
       },
       "README.md": {
-        "sha256": "b2e1fa8f790e17a23152ca0955914a5f0968815fd6580b708a853cdd612dfbc7",
-        "size": 10806
+        "sha256": "45d7c57de2c94ded0e3d7bbc95d8c4fa1d4ee1bfed0065b450717d8a4ba06fd6",
+        "size": 10878
       },
       "README_V16.md": {
         "sha256": "cbc7ec074c281ecd6fa9d7702bcf2a25ae4d563a0185f82bd545ce6440197788",
@@ -589,8 +589,8 @@
         "size": 2664
       },
       "settings_ui.py": {
-        "sha256": "1ca62e164942e80028497d49da4cfffc7bda79bae05315791a83f80c4eef7537",
-        "size": 15754
+        "sha256": "8b35f0c2330d538f20f5b4e717e5793e18eeb3aecfedb86f55df8ede70b9c450",
+        "size": 15792
       },
       "setup_bootstrap.py": {
         "sha256": "4f621b7de66d34b4feaceb86b66817b92e255a81476e2556cba3529cf8053d9d",
@@ -617,8 +617,8 @@
         "size": 1305
       },
       "smoke_gui.py": {
-        "sha256": "11b027ed23f2824e570d3e66e9b376f6c0b1e88224720e1276137f1e8f1c7536",
-        "size": 19486
+        "sha256": "03bfed304ad92f1ab92bf0d2287cfdbf253243851111058f1c3ff03a0fc8da7d",
+        "size": 19627
       },
       "smoke_setup.py": {
         "sha256": "e33bc48f0111460dd455c903e5b6e419e38cf219eb3bcfed4d628185b7e23bdb",
@@ -897,7 +897,7 @@
         "size": 4237
       },
       "version.py": {
-        "sha256": "2db8df4bb0af0f9e61fb781e33275938c7478a1dbf6319659a5885d34cba9e5c",
+        "sha256": "b2f75896e9779b31c680cea855dd97f389133d3e4aff94caf1c767a74f90aa29",
         "size": 91
       },
       "VIDEO_AND_PUBLISHING.md": {
@@ -1286,5 +1286,5 @@
       }
     }
   },
-  "signature": "gUJyzIz4VyQ2Y3FTZQriKw9U9J+83VWBhh3roTN7/nUcBG7ntH5D1aQ1ZiJr7aHAHR4TpSzSAiz9DISToWvdAg=="
+  "signature": "muaynct6+yljhRwqTHEyHiWLAGWrF8E+96mLARQtzjQ1PYPEqwsNipY6yWKU8CVPY2LBI97D+Jch5+1mp8LmDw=="
 }
