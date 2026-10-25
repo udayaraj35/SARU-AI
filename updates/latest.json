@@ -1,8 +1,8 @@
 {
   "payload": {
     "repository": "udayaraj35/SARU-AI",
-    "commit": "f12c2d08b193abc8515e961a65bc42766d4fc2cb",
-    "version": "2.18.1",
+    "commit": "cec366667482c572cbd22c03929844f23302dd63",
+    "version": "2.18.2",
     "files": {
       "action_consent.py": {
         "sha256": "15bb1704d1b7a4930aa26fd8c462a07616466f414edef1932a349580d8ff54ca",
@@ -465,8 +465,8 @@
         "size": 2262
       },
       "README.md": {
-        "sha256": "830065886623eec7fd93437e6d7a7519ef3203c4c76a521f5b4726dcf28887c9",
-        "size": 9678
+        "sha256": "73f8023426523650ec9e5f2740487a70012cfbbb6c55bf64ebe7333a642d5971",
+        "size": 10272
       },
       "README_V16.md": {
         "sha256": "cbc7ec074c281ecd6fa9d7702bcf2a25ae4d563a0185f82bd545ce6440197788",
@@ -853,12 +853,12 @@
         "size": 9294
       },
       "test_voice_gate.py": {
-        "sha256": "8f6f2bc6127a6a41338deace70ae640d46afd943a663c11d40bdcf8cf62ec3a9",
-        "size": 1031
+        "sha256": "681e6a8bf33f2e94b3b530d4238666c354db396cc806ad6fa6f41b877e2fc0e4",
+        "size": 1458
       },
       "test_voice_replies.py": {
-        "sha256": "3a0cc0cd3ec8fa9132e0feb0a103b5e0ba2faa4c59771b481b77adb9dd72f77c",
-        "size": 7433
+        "sha256": "0ee23b71b6a56a4fe1e46cd4f5a15a8089dc0e69aeec66570f336774082b6524",
+        "size": 7949
       },
       "test_wacrm.py": {
         "sha256": "f282f77cca4d963df5398b01f112bc131ffaca625dcd1c4f2b8d9a4433bafa2a",
@@ -893,7 +893,7 @@
         "size": 4237
       },
       "version.py": {
-        "sha256": "f1887ec16c2773ad277a456200e6263dd79b1fd6e27f75f903014d32e13b000d",
+        "sha256": "09d7042ae3ca7495faaacbae69444d113144195a66716f6b409da456eba87c5d",
         "size": 91
       },
       "VIDEO_AND_PUBLISHING.md": {
@@ -921,8 +921,8 @@
         "size": 5607
       },
       "voice_gate.py": {
-        "sha256": "2ee2fdc08da1d33140ad5b56cbdfe148a8401ca8be917e439a13d517b7e331eb",
-        "size": 1394
+        "sha256": "6d353c9f80840b4e6239862652aa5a8377dd99f7599f5f7d44b74cd1a8d6f383",
+        "size": 1640
       },
       "voice_hub.py": {
         "sha256": "fa6a70943c02f5dfdecdba6836556915f460f6227f5c5d9ee509cc1389b76ae5",
@@ -1282,5 +1282,5 @@
       }
     }
   },
-  "signature": "59S3SsLIf4kMNlgJGJrEA1vcfpM40uaW4YG9NV0gLlEIt6Xd7MIPv3wB6uIeO0HUuubZiLRUxnOPkWbB40v/Dw=="
+  "signature": "e/MrPSJHgqvk/i87J4gErkypLiPewtJA1Vd8CF2M9N90Br0eI7QhKssWycnlpZ8RRiJej+O3JY6w2p26erR0Dg=="
 }
