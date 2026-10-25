@@ -29,15 +29,19 @@ def fetch_weather(city,session=requests):
 class HeaderStatus(tk.Frame):
  def __init__(self,parent,config):
   super().__init__(parent,bg='#061226');self.config_data=config;self.closed=False;self.job=None;self.next_weather=0;self.busy=False;self.events=Queue()
-  self.clock=tk.Label(self,bg='#061226',fg='#e8f5ff',font=('Segoe UI',10,'bold'));self.clock.pack(anchor='w')
+  self.clock=tk.Label(self,bg='#061226',fg='#e8f5ff',font=('Segoe UI',10,'bold'),justify='right',anchor='e');self.clock.pack(anchor='w')
   self.nepali=tk.Label(self,bg='#061226',fg='#ff4c91',font=('Segoe UI',10,'bold'));self.nepali.pack(anchor='w')
   self.weather=tk.Label(self,bg='#061226',fg='#7ad9ee',font=('Segoe UI',9),wraplength=560,justify='left');self.weather.pack(anchor='w')
-  self.bind('<Destroy>',self.cleanup,add='+');self.tick()
+  self.bind('<Configure>',self.fit,add='+');self.bind('<Destroy>',self.cleanup,add='+');self.tick()
+ def fit(self,event):
+  if event.widget is not self:return
+  self.clock.configure(wraplength=max(240,int(event.width*.57)))
+  self.weather.configure(wraplength=max(140,int(event.width*.37)))
  def tick(self):
   if self.closed:return
   try:a,b=clock_text(zone=self.config_data.get('display_timezone','Europe/Sofia'))
   except Exception:a,b=clock_text()
-  self.clock.configure(text=a);self.nepali.configure(text=b)
+  self.clock.configure(text='\n'.join(a.rsplit('  ',1)));self.nepali.configure(text=b)
   try:self.weather.configure(text=self.events.get_nowait());self.busy=False
   except Empty:pass
   if not self.busy and time.monotonic()>=self.next_weather:

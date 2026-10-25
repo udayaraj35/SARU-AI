@@ -1,6 +1,8 @@
-# SARU AI 2.18.2
+# SARU AI 2.18.3
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.18.3 moves the measured Online/Offline indicator below Owner profile and places the selected clock/date at the top right. Click the clock, or open Settings → Appearance → Clock / Country & Timezone, to choose from the offline IANA country list and that country's city/timezones. Countries spanning multiple timezones require a city selection. Saved clock preferences survive restarts and observe the selected timezone's DST rules. The Windows system clock, separate Nepali calendar and configured weather city are preserved.
 
 2.18.2 fixes an observed full-question wake-name transcription failure: Gemini transcribed a synthetic “SARU, what is two plus three?” as uppercase `SAU, what is 2 + 3?`, which the local wake gate discarded. The gate now recognizes that narrowly punctuated uppercase ASR form with a nonempty request. Ordinary `sau`, unpunctuated `SAU`, `Sorry`, `Sarah`, embedded names and unaddressed follow-up speech remain blocked. A real provider test then returned the correct Nepali answer with audio. The SARU prefix remains required for every spoken request; this is not speaker authentication.
 

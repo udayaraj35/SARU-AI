@@ -248,6 +248,12 @@ def chat_window():
  if active_page is None or active_page.__class__.__name__!='Dashboard':show_dashboard()
  active_page.focus_chat()
 
+def clock_settings():
+ settings()
+ for tab in active_page.book.tabs():
+  if active_page.book.tab(tab,'text')=='Appearance':active_page.book.select(tab);break
+ active_page.country_picker.focus_set()
+
 cancel_requests=threading.Event()
 request_generation=0
 
@@ -1697,6 +1703,7 @@ def show_dashboard():
  available_app_actions.update({'Camera':lambda:personal_hub.handle('camera','open'),'Stop camera':lambda:personal_hub.handle('camera','stop'),'Voice Profiles':lambda:personal_hub.handle('voice_profiles'),'Reminders':lambda:announce_local(personal_hub.handle('reminders')),'Document Editor':lambda:run_agent_task('open document editor',quiet=True)})
  available_app_actions.update({'Open SARU':lambda:control_own_app('show'),'Hide SARU':lambda:control_own_app('hide'),'Restart SARU':lambda:control_own_app('restart'),'Exit SARU':lambda:control_own_app('exit'),'Close current panel':lambda:control_own_app('close_panel'),'Self improvement status':lambda:announce_local(apply_saru_control(('edit','status')))})
  available_app_actions.update({'Voice Studio':list_voices_dialog,'Test voice':voice_test,'Test microphone':audio_diagnostic,'Models':list_gemini_models,'Change portrait':change_photo,'Change background':change_dashboard,'Change floating portrait':change_orb_photo,'Restore background':reset_dashboard,'Save note':add_note,'Export memory':export_memory,'Dependencies':dependencies_report,'Improve SARU':improvement_studio,'Start voice':lambda:voice_hub.start(),'Stop screen view':lambda:apply_saru_control(('screen_watch','stop')),'Sleep PC':lambda:propose_power_action('sleep')})
+ available_app_actions['Clock country']=clock_settings
  active_page=Dashboard(root,dict(actions,**available_app_actions),status,cfg.get('photo',str(ROOT/'saru_photo.jpg')),show_reference,cfg,TASK_LOG)
  page=active_page
  voice_hub.sink=page.voice_event

@@ -74,6 +74,21 @@ class SettingsPanel(tk.Frame):
   look=group('Appearance','IDENTITY & MOTION')
   from theme_manager import THEMES
   field(look,'theme','Interface theme','Neon Rose',choices=list(THEMES))
+  region=group('Appearance','CLOCK / COUNTRY & TIMEZONE')
+  from clock_regions import country_catalog,country_choices,country_for_zone,country_code,zones_for_country,OTHER
+  catalog=country_catalog();zone=cfg.get('display_timezone','Europe/Sofia')
+  code=cfg.get('display_country',country_for_zone(zone))
+  if code not in catalog or zone not in zones_for_country(code):code=country_for_zone(zone)
+  country_var=field(region,'display_country','Clock country',choices=country_choices())
+  country_var.set(catalog[code]['label'] if code else OTHER)
+  zone_var=field(region,'display_timezone','Timezone / city',zone,choices=zones_for_country(code))
+  self.country_picker=region.winfo_children()[-3];self.timezone_picker=region.winfo_children()[-1]
+  def country_changed(*args):
+   selected=country_code(country_var.get());choices=zones_for_country(selected)
+   self.timezone_picker.configure(values=choices)
+   if zone_var.get() not in choices:zone_var.set(choices[0])
+  country_var.trace_add('write',country_changed)
+  label(region,'Countries with several timezones also need a city/timezone choice. Save settings to apply. The PC clock and weather city are unchanged; Nepali date remains shown separately.',fg=MUTED,wraplength=650,justify='left').pack(anchor='w',padx=16,pady=10)
   def size_slider(key,title,default,low,high):
    label(look,title,fg=MUTED).pack(anchor='w',padx=16,pady=(10,2))
    var=tk.StringVar(value=cfg.get(key,default));self.fields[key]=var
@@ -93,7 +108,6 @@ class SettingsPanel(tk.Frame):
   for title in ['Audio Center','Brightness','PC Health','Connectivity','Commands','Emergency Stop']:button(pc,title,actions[title]).pack(fill='x',padx=16,pady=5)
   memory=group('Memory','LOCAL MEMORY')
   field(memory,'weather_city','Weather city','Kathmandu')
-  field(memory,'display_timezone','Clock timezone','Europe/Sofia')
   field(memory,'work_folder','Default work folder — ask where to save each deliverable','D:/SARU_AI/Work')
   self.remember=tk.BooleanVar(value=cfg.get('remember_conversations',True));self.check(memory,'Keep text and completed voice conversations in local memory',self.remember)
   label(memory,'Open View notes / Memory to search conversations, notes, actual task results and office work. Use recall <topic> in chat or voice. Saving off stops new journal entries and automatic lookup; existing memory remains local. API keys/passwords and raw microphone recordings are excluded.',fg=MUTED,wraplength=650).pack(padx=16,pady=8)
@@ -129,6 +143,8 @@ class SettingsPanel(tk.Frame):
     if not low<=values[name]<=high:raise ValueError(f'{name}: choose {low}–{high}.')
    if not values['model']:raise ValueError('Enter a model identifier for the selected provider.')
    if not values['custom_url'].startswith(('https://','http://localhost','http://127.0.0.1')):raise ValueError('Use HTTPS or a local compatible endpoint.')
+   from clock_regions import country_code,validate_clock
+   values['display_country'],values['display_timezone']=validate_clock(country_code(values['display_country']),values['display_timezone'])
   except ValueError as exc:self.note.configure(text=str(exc),fg=PINK);return
   old=copy.deepcopy(self.cfg)
   try:

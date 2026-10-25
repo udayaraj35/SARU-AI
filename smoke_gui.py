@@ -119,6 +119,14 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    assert len(page.nav_buttons)==11
    assert not page.details_open
    assert hasattr(page,'header_status')
+   assert page.online.master.master is page.nav
+   assert page.header_status.clock.grid_info()['column']==1
+   assert page.header_status.weather.grid_info()['column']==0
+   page.header_status.clock.event_generate('<Button-1>');root.update_idletasks()
+   assert app['active_page'].__class__.__name__=='SettingsPanel'
+   assert app['active_page'].book.tab(app['active_page'].book.select(),'text')=='Appearance'
+   assert len(app['active_page'].country_picker.cget('values'))>200
+   app['back_home']();page=app['active_page']
    assert page.control_panel.master is page.body
    assert page.panels[3].master is page.body
    assert page.home_view=='assistant' and page.panels[0].winfo_manager()=='grid'
@@ -164,8 +172,17 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    for tab in panel.book.tabs():panel.book.select(tab);root.update_idletasks();root.update()
    original_size=app['cfg']['voice_rate'];panel.fields['voice_rate'].set('bad');panel.commit();assert app['cfg']['voice_rate']==original_size
    panel.fields['voice_rate'].set(str(original_size));panel.fields['new_key'].set('synthetic-key-only');panel.commit()
+   panel.fields['display_country'].set('Nepal (NP)');root.update_idletasks()
+   assert tuple(panel.timezone_picker.cget('values'))==('Asia/Kathmandu',)
+   panel.commit();assert app['cfg']['display_country']=='NP' and app['cfg']['display_timezone']=='Asia/Kathmandu'
+   panel.fields['display_country'].set('United States (US)');root.update_idletasks()
+   assert len(panel.timezone_picker.cget('values'))>1
+   panel.fields['display_timezone'].set('America/New_York');panel.commit();assert app['cfg']['display_timezone']=='America/New_York'
    assert 'synthetic-key-only' not in Path(temp,'settings.json').read_text(encoding='utf8')
    app['back_home']()
+   page=app['active_page'];root.update_idletasks()
+   assert page.online.winfo_rooty()>page.nav.winfo_rooty()
+   assert page.header_status.clock.winfo_rootx()>page.header_status.weather.winfo_rootx()
    app['office_center']('Prepare a PDF report');office=app['active_page'];root.update_idletasks()
    assert office.__class__.__name__=='OfficePanel'
    assert len(office.office.agents())==4
