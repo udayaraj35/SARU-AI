@@ -1,6 +1,8 @@
-# SARU AI 2.20.0
+# SARU AI 2.20.1
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.20.1 routes everyday WhatsApp message and YouTube playback requests to the existing task executors, accepts media follow-ups after waking once, and supports explicit input in the currently selected PC Control app. WhatsApp drafts use the visible social session and final reviewed Send; QR/login and exact recipients are still required. No production-account delivery is certified. See [commands and limits](TASK_SHORTCUTS.md).
 
 2.20.0 adds the owner's video-inspired **Holographic workspace**: a locally rendered purple/blue particle sphere and wave floor, actual voice state and measured PC readings, plus working Chat / Controls / Configure buttons. Click the sphere for Saved Memory. Settings → Appearance can restore the Portrait workspace or enable Reduced motion. Existing sidebar tools, right chat, bottom composer, country clock and Owner-profile internet status are retained. The video's narrated analytics/email claims are not displayed as fabricated activity. See [workspace behavior and validation](HOLOGRAPHIC_WORKSPACE.md).
 

@@ -26,6 +26,13 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
     app['send_message']('एप खोल्नुहोस्',app['active_page'].chat_output)
     route.assert_called_once_with('एप खोल्नुहोस्',app['active_page'].chat_output);cloud.assert_not_called()
    app['cfg']['speak']=False
+   with patch.object(app['backend_runtime'],'handle',return_value='Synthetic draft prepared; no send') as backend:
+    app['send_message']('WhatsApp ma Test Contact lai: Hello')
+    backend.assert_called_once_with(('social',{'platform':'whatsapp','action':'send','target':'Test Contact','text':'Hello'}))
+   player=Mock()
+   with patch.dict(app,{'media_player':Mock(return_value=player)}):
+    app['send_message']('YouTube ma Nepali folk music bajau')
+    player.play_request.assert_called_once_with('Nepali folk music')
    page=app['active_page']
    page.render({'internet_online':False,'internet_detail':'Internet not reachable','adapters':['Wi-Fi']});assert page.online.cget('text')=='● Offline' and page.online.cget('fg')=='#ff3b30'
    page.render({'internet_online':True,'internet_detail':'Internet connection verified'});assert page.online.cget('text')=='● Online' and page.online.cget('fg')=='#00e676'

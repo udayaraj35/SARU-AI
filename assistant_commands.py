@@ -37,6 +37,9 @@ def parse_command(command):
  try:backend=parse_backend(command)
  except (ValueError,TypeError):return 'invalid','Backend command JSON is invalid. Check its quoted keys and values.'
  if backend:return 'backend',backend
+ from task_shortcuts import task_shortcut
+ shortcut=task_shortcut(command)
+ if shortcut:return shortcut
  q=normalize_request(command);low=q.casefold()
  if low in ('advanced workspace','open advanced workspace','open advanced','mark lvi','open mark lvi','advanced tools'):return 'advanced_workspace',None
  if low in ('whatsapp crm','open whatsapp crm','wacrm','open wacrm','crm setup'):return 'wacrm_panel',None

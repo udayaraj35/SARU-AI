@@ -999,7 +999,7 @@ def run_agent_task(command,output=None,quiet=False,crm_approved=False):
    if cfg.get('keys',{}).get('WhatsApp Business') and cfg.get('whatsapp_phone_id'):
     compose_social('WhatsApp',msg,'+'+phone);result='WhatsApp Business composer ready. Review and send using the connected account.'
    else:
-    open_saru_browser('https://web.whatsapp.com/send?phone='+phone+'&text='+urllib.parse.quote(msg));result='WhatsApp Web chat and text opened. Click Send there, or connect WhatsApp Business in Social accounts for API sending. No message has been sent yet.'
+    result=backend_runtime.handle(('social',{'platform':'whatsapp','action':'send','target':'+'+phone,'text':msg}))
   elif action=='email':
    match=re.fullmatch(r'\s*([^ :]+@[^ :]+)\s*:\s*([^|]{1,250})\|\s*(.{1,4000})',arg,re.S)
    if not match:raise ValueError('Format: email to user@example.com: Subject | Message')
