@@ -9,11 +9,23 @@ def task_shortcut(text):
  from voice_gate import strip_address
  q=strip_address(str(text)).strip()
  q=re.sub(r'^(?:please|कृपया)\s+','',q,flags=re.I)
+ q=re.sub(r'^open\s+whatsapp\s+and\s+(?:send|write)\s+(?:a\s+)?message\s+to\s+','send WhatsApp message to ',q,flags=re.I)
+ q=re.sub(r'^('+WHATSAPP+r')\s+(?:kholera|खोलेर)\s+',r'\1 ma ',q,flags=re.I)
+ media_command=re.fullmatch(YOUTUBE+r'\s*(?:(?:ma|मा|ko|को)\s+)?(.+)',q,re.I)
+ if media_command:
+  control={
+   'pause':('pause',None),'pause gara':('pause',None),'video rok':('pause',None),'रोक':('pause',None),'भिडियो रोक':('pause',None),
+   'resume':('play',None),'resume gara':('play',None),'feri chalau':('play',None),'फेरि चलाऊ':('play',None),
+   'next':('next',None),'arko video chalau':('next',None),'अर्को भिडियो चलाऊ':('next',None),
+   'previous':('previous',None),'agillo video chalau':('previous',None),'अघिल्लो भिडियो चलाऊ':('previous',None),
+   'volume badhau':('volume_delta',10),'volume ghatau':('volume_delta',-10),'आवाज बढाऊ':('volume_delta',10),'आवाज घटाऊ':('volume_delta',-10),
+  }.get(media_command[1].casefold().rstrip('.!?।'))
+  if control:return 'media_control',control
  # Explicit channel and recipient delimiters keep contact names/message bodies intact.
  patterns=[
   r'(?:send|write|draft)\s+(?:a\s+)?(?:whatsapp|whats app)\s+(?:message\s+)?to\s+([^:\n]{1,100}):\s*([\s\S]{1,3000})',
-  WHATSAPP+r'\s+(?:ma|मा)\s+(.{1,100}?)\s+(?:lai|लाई)\s*:\s*([\s\S]{1,3000})',
-  WHATSAPP+r'\s+(?:ma|मा)\s+(.{1,100}?)\s+(?:lai|लाई)\s+(.{1,3000}?)\s+(?:(?:message|msg|मेसेज|म्यासेज|सन्देश)\s+)?(?:pathau|pathaunu|pathaidinu|pathaideu|पठाऊ|पठाउनुहोस्|पठाइदेऊ)',
+  WHATSAPP+r'\s*(?:ma|मा)\s+(.{1,100}?)\s+(?:lai|लाई)\s*:\s*([\s\S]{1,3000})',
+  WHATSAPP+r'\s*(?:ma|मा)\s+(.{1,100}?)\s+(?:lai|लाई)\s+(.{1,3000}?)\s+(?:(?:message|msg|मेसेज|म्यासेज|सन्देश)\s+)?(?:pathau|pathaunu|pathaidinu|pathaideu|पठाऊ|पठाउनुहोस्|पठाइदेऊ)',
  ]
  for pattern in patterns:
   m=re.fullmatch(pattern,q,re.I)

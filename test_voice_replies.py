@@ -7,6 +7,11 @@ from voice_hub import VoiceHub
 from network_status import InternetStatus
 
 class ReplyTests(unittest.IsolatedAsyncioTestCase):
+ async def test_empty_authorized_answer_is_reported_instead_of_silent_completion(self):
+  events,_,_,_=await self.exercise([{'input':'SARU, how are you today?','finished':True,'complete':True}])
+  self.assertIn(('empty_reply',True),events)
+  events,_,_,_=await self.exercise([{'input':'The television is playing','finished':True,'complete':True}])
+  self.assertNotIn(('empty_reply',True),events)
  async def test_full_addressed_question_with_observed_asr_spelling_plays_answer(self):
   events,count,_,_=await self.exercise([{'output':'Two plus three is five.','audio':True},{'input':'SAU, what is 2 + 3?','finished':True,'complete':True}])
   self.assertEqual(count,1)

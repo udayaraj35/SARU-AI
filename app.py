@@ -791,6 +791,24 @@ def apply_saru_control(control):
  kind,value=control
  if kind=='lifecycle':return control_own_app(value)
  if kind=='settings':settings()
+ elif kind=='settings_tab':
+  if active_page is None or active_page.__class__.__name__!='SettingsPanel':settings()
+  for tab in active_page.book.tabs():
+   if active_page.book.tab(tab,'text')==value:active_page.book.select(tab);break
+  else:raise ValueError('Settings section is unavailable')
+ elif kind=='navigation':
+  if value in ('home','tools','controls','weather'):
+   if active_page is None or active_page.__class__.__name__!='Dashboard':show_dashboard()
+   if value=='home':active_page.show_home()
+   elif value=='tools':active_page.show_tools()
+   elif value=='controls':
+    if not active_page.details_open:active_page.hologram_controls()
+   else:announce_local(active_page.header_status.weather.cget('text'))
+  elif value=='chat':chat_window()
+  else:
+   callback=available_app_actions.get(value)
+   if callback is None:raise ValueError('SARU option is unavailable: '+value)
+   callback()
  elif kind=='view':
   set_home_view(value);show_dashboard()
  elif kind=='theme':cfg['theme']=value;save();apply_theme(root,value);orb.reload()
@@ -1256,6 +1274,8 @@ def handle_conversation_turn(user_text,assistant_text):
   offer_pending_action('Improvement proposal तयार गर्न: '+user_text,lambda:improvement_studio(user_text))
 
 def voice_visual_event(kind,value):
+ if kind=='empty_reply':
+  announce_local('तपाईंको कुरा सुनियो, तर voice सेवाबाट जवाफ आएन। कृपया फेरि भन्नुहोस्।');return
  if kind=='wake_ack':
   from voice_gate import WAKE_GREETING
   announce_local(WAKE_GREETING if cfg.get('wake_conversation',True) else cfg.get('wake_greeting',WAKE_GREETING));return

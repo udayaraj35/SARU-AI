@@ -74,6 +74,9 @@ def parse_command(command):
  from system_intents import system_intent
  control=system_intent(q)
  if control:return 'saru_control',control
+ from voice_navigation import navigation_intent
+ navigation=navigation_intent(q)
+ if navigation:return 'saru_control',navigation
  choice=re.fullmatch(r'(?:select app|choose app|app छान|एप छान)\s+(\d{1,2})',q,re.I)
  if choice:return 'select_app',int(choice[1])
  m=re.fullmatch(r'(?:use|control|open|launch)\s+([^:]{1,100}):\s*(.{1,4000})',q,re.I)

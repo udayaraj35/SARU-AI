@@ -4,8 +4,11 @@ import re,threading,time,uuid
 def consent_reply(text):
  value=re.sub(r'[.!?।,]+',' ',text.casefold()).strip()
  value=re.sub(r'^(?:saru|सारु|सारू|सरु)\s+','',value).strip()
+ value=' '.join(value.split())
  yes={'ok','okay','yes','yes do it','do it','confirm','approve','हुन्छ','हुन्छ गर','हुन्छ गर्नुहोस्','गर','गर्नुहोस्','ल गर','ठीक छ','ठिक छ','अवश्य','hunxa','huncha','hunchha','hunxa gara','ok gara','okay gara','ho gara'}
  no={'no','cancel','cancel it','stop','never mind','हुँदैन','हुदैन','नगर्नु','नगर','रद्द गर','रोक','hudaina','hudena','nagara','cancel gara','nai'}
+ yes.update({'अँ गर','अँ हुन्छ','अँ ठीक छ','अँ ठिक छ','ल हुन्छ','हुन्छ गरिदेऊ','हुन्छ गरिदिनुहोस्','ठीक छ गर','ठिक छ गर','okay do it','ok do it','yes go ahead','go ahead','la hunxa','la huncha','huncha gara','hunchha gara','thik cha gara','thik xa gara'})
+ no.update({'अहिले नगर','अहिले नगर्नु','पर्दैन','नाइँ','नाई','अँ होइन','अँ हुँदैन','ahile nagara','pardaina','no do not','not now'})
  return True if value in yes else False if value in no else None
 
 class PendingActions:

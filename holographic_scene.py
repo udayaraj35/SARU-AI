@@ -18,6 +18,7 @@ class HolographicScene:
         self.background=Image.new('RGB',(self.w,self.h));draw=ImageDraw.Draw(self.background)
         for y in range(self.h):draw.line((0,y,self.w,y),fill=mix((6,8,19),(12,13,36),y/self.h))
         self.points=[];golden=math.pi*(3-math.sqrt(5))
+        self.voice_zoom=.88
         count=max(100,min(1800,int(points)))
         for i in range(count):
             y=1-2*(i+.5)/count;r=math.sqrt(max(0,1-y*y));a=i*golden
@@ -31,6 +32,9 @@ class HolographicScene:
     def render(self,phase=0,level=0,state='STOPPED',reduced=False):
         phase=0 if reduced else float(phase)
         level=0 if reduced or state not in ('LISTENING','SPEAKING') else max(0,min(1,float(level)))
+        target=1.04 if state in ('LISTENING','SPEAKING') else .88
+        self.voice_zoom=1 if reduced else self.voice_zoom+(target-self.voice_zoom)*.2
+        zoom=1 if reduced else self.voice_zoom*(1+.012*math.sin(phase*1.7) if state in ('LISTENING','SPEAKING') else 1)
         image=self.background.copy();draw=ImageDraw.Draw(image)
         horizon=self.h*.72
         # A perspective wave mesh. Motion is decorative; audio only changes
@@ -58,8 +62,8 @@ class HolographicScene:
             morph+=level*.12*math.sin(7*y+phase*2.8)
             xx=x*ca+z*sa;zz=-x*sa+z*ca;yy=y*ct-zz*st;zz=y*st+zz*ct
             perspective=3.2/(3.2-zz*.36)
-            px=self.cx+xx*self.radius*morph*perspective
-            py=self.cy+yy*self.radius*morph*perspective
+            px=self.cx+xx*self.radius*morph*perspective*zoom
+            py=self.cy+yy*self.radius*morph*perspective*zoom
             brightness=.38+.62*(zz+1)/2
             color=mix(self.blue,self.light,(yy+1)/2)
             color=tuple(round(v*brightness) for v in color)

@@ -3,6 +3,13 @@ from assistant_commands import parse_command
 from voice_requests import voice_request
 
 class TaskShortcutTests(unittest.TestCase):
+ def test_compound_launch_and_message_preserves_target_and_body(self):
+  for text in ('open WhatsApp and send a message to Test Contact: Hello please','WhatsApp kholera Test Contact lai Hello please message pathau'):
+   action,request=parse_command(text)
+   self.assertEqual(action,'backend');self.assertEqual(request[1]['target'],'Test Contact');self.assertEqual(request[1]['text'],'Hello please')
+ def test_youtube_controls_do_not_become_video_searches(self):
+  for text,expected in {'YouTube ma pause gara':('pause',None),'YouTube ko volume badhau':('volume_delta',10),'YouTube ma arko video chalau':('next',None)}.items():
+   self.assertEqual(parse_command(text),('media_control',expected))
  def test_natural_whatsapp_uses_actual_draft_executor(self):
   for text in ('send WhatsApp message to Test Contact: Hello please', 'WhatsApp ma Test Contact lai: Hello please','WhatsApp ma Test Contact lai Hello please message pathau'):
    expected=('backend',('social',{'platform':'whatsapp','action':'send','target':'Test Contact','text':'Hello please'}))

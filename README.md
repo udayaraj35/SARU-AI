@@ -1,6 +1,8 @@
-# SARU AI 2.20.1
+# SARU AI 2.20.2
 
 Windows personal assistant with a native neon dashboard, text/live voice, local PC tools, SARU Office and optional integrations. This repository contains the Windows source; an Android app has not yet been implemented.
+
+2.20.2 adds state-dependent listening/idle zoom for the sphere and floating portrait, a centered floating SARU badge, multilingual section navigation, YouTube playback-control aliases and compound WhatsApp requests. Additional complete approval/rejection phrases apply only to the current unexpired proposal; ambiguous fillers do not authorize actions. Empty completed provider replies now produce a repeat-request notice. Cloud services still receive configured AI/voice inputs; local memory does not imply offline-only processing. See [voice controls, animation and boundaries](VOICE_NAVIGATION.md).
 
 2.20.1 routes everyday WhatsApp message and YouTube playback requests to the existing task executors, accepts media follow-ups after waking once, and supports explicit input in the currently selected PC Control app. WhatsApp drafts use the visible social session and final reviewed Send; QR/login and exact recipients are still required. No production-account delivery is certified. See [commands and limits](TASK_SHORTCUTS.md).
 

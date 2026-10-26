@@ -241,6 +241,7 @@ class LiveVoice:
           keep_window=not self.stop_event.is_set() and not self.muted.is_set() and self.conversation_gate.renew(generation)
           self.report_window()
          if authorized and wake_call(user_turn) and not assistant_turn.strip() and not audio_emitted:self.emit('wake_ack',True)
+         elif authorized and user_turn.strip() and not local_command and not assistant_turn.strip() and not audio_emitted and not self.typed_reply_pending:self.emit('empty_reply',True)
          if authorized and (user_turn or assistant_turn) and not owner_dispatched:self.emit('conversation_turn',(user_turn,'' if local_command else assistant_turn))
          elif not authorized and self.settings.get('wake_word_required',True):self.emit('wake_wait',True)
          user_turn='';assistant_turn='';assistant_emitted=0;user_emitted=0;audio_emitted=False;owner_dispatched=False;input_finished=False;turn_authorized=False;turn_generation=None;deferred.clear();deferred_size=0

@@ -1,0 +1,13 @@
+# Voice controls and activity animation — 2.20.2
+
+Main sphere zoom eases in while the real voice state is Listening/Speaking and eases out while idle/stopped/muted. Recent actual input/output levels still control deformation. Reduced motion freezes decorative activity. The floating portrait has matching state-dependent zoom and a centered SARU brand badge below its face, near the hands. Existing photos, drag, single/double-click controls and theme settings remain.
+
+Explicit English/Nepali/Romanized section requests now route to existing callbacks, including Home, Chat, Voice Mode, PC Control, Apps & Tools, Automation, Files & Documents, Media, Web Search, Website Studio, Social Media, SARU Office, device controls, Settings, weather, Owner Profile and Saved Memory. Examples: `apps and tools kholnu`, `memory kholnu`, `device control dekhaunu`, `voice setting kholnu`, `open settings appearance`. Existing exact button/tab/field commands still work. This is a set of tested intent aliases, not universal language comprehension.
+
+YouTube examples: `YouTube ma pause gara`, `YouTube ko volume badhau`, `YouTube ma arko video chalau`, `YouTube ma Nepali song bajau`. A compound `open WhatsApp and send a message to CONTACT: MESSAGE` or `WhatsApp kholera CONTACT lai MESSAGE pathau` uses the actual social draft executor. The contact/body must be specific; ambiguous "this person" requests need clarification. Local QR/login and final reviewed Send remain required.
+
+Pending-action confirmations accept additional complete phrases such as `अँ हुन्छ`, `ठिक छ गर`, `yes go ahead` and `la hunxa`; rejection phrases include `अहिले नगर` and `पर्दैन`. Approval applies once to the currently displayed, unexpired proposal. Bare `अँ`, mixed conditional statements and unknown phrases do not approve. This does not dismiss Windows UAC, authenticate a speaker or approve unseen future code changes. Existing exact source-edit review, backup and owner verification remain.
+
+A completed, authorized conversational turn with neither answer text nor audio reports an empty provider reply and asks the owner to repeat, instead of ending silently. The notice does not authorize background speech or recursively retry a failed result. It cannot guarantee a cloud provider will always return audio.
+
+Memory databases and settings stay local. Current cloud AI/voice and approved screen analysis can transmit input and relevant context to configured providers. This update does not turn SARU into an offline-only assistant or establish that every app can be automated. Validation uses synthetic messages/mocked accounts; no real contact receives a test message.

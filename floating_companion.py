@@ -47,11 +47,19 @@ class FloatingCompanion(tk.Toplevel):
    ratio=diameter/max(original.width,original.height)
    self.frames=[]
    for index in range(8):
-    factor=.91+.09*index/7
+    factor=.80+.20*index/7
     portrait=original.resize((max(1,int(original.width*ratio*factor)),max(1,int(original.height*ratio*factor))),Image.Resampling.LANCZOS)
     frame=Image.new('RGBA',(diameter,diameter));frame.alpha_composite(portrait,((diameter-portrait.width)//2,(diameter-portrait.height)//2));self.frames.append(ImageTk.PhotoImage(frame))
    self.photo=self.frames[-1]
   except (OSError,TypeError,ValueError):pass
+  self.brand_frames=[]
+  try:
+   from pathlib import Path
+   with Image.open(Path(__file__).with_name('dashboard.png')) as art:brand=art.crop((20,5,95,80)).convert('RGBA')
+   for index in range(8):
+    edge=max(12,round(self.size*(.22+.04*index/7)))
+    self.brand_frames.append(ImageTk.PhotoImage(brand.resize((edge,edge),Image.Resampling.LANCZOS)))
+  except (OSError,ValueError):pass
   self.draw()
   if self.controls and self.controls.winfo_exists():
    from theme_manager import apply_theme
@@ -66,12 +74,16 @@ class FloatingCompanion(tk.Toplevel):
  def draw(self):
   c=self.canvas;c.delete('all');s=self.size;color=COLORS.get(self.state_name,COLORS['IDLE']);cx=self.width/2;cy=s/2+12
   c.create_oval(cx-s/2,cy-s/2,cx+s/2,cy+s/2,fill='#0c172c',outline='#263552',width=3)
-  if self.frames:self.photo=self.frames[frame_index(self.state_name,self.phase,self.cfg.get('reduced_motion',False))]
+  active=self.state_name in ('LISTENING','SPEAKING')
+  zoom_target=(6+.7*math.sin(self.phase)) if active else 0
+  self.voice_zoom=getattr(self,'voice_zoom',0)+(zoom_target-getattr(self,'voice_zoom',0))*.3
+  if self.frames:self.photo=self.frames[-1 if self.cfg.get('reduced_motion',False) else max(0,min(7,round(self.voice_zoom))) ]
   motion=not self.cfg.get('reduced_motion',False)
   listening=self.state_name=='LISTENING'
   bob=math.sin(self.phase)*2 if motion and listening else 0
   if self.photo:c.create_image(cx,cy+bob,image=self.photo)
   else:c.create_text(cx,cy,text='SARU',fill='white',font=('Segoe UI',max(10,s//6),'bold'))
+  if getattr(self,'brand_frames',None):c.create_image(cx,cy+s*.19+bob,image=self.brand_frames[max(0,min(7,round(self.voice_zoom)))])
   c.create_arc(cx-s/2,cy-s/2,cx+s/2,cy+s/2,start=self.angle,extent=255,style='arc',outline=color,width=3)
   if self.state_name in ('LISTENING','SPEAKING'):
    for i in range(7):
@@ -98,7 +110,7 @@ class FloatingCompanion(tk.Toplevel):
   c.create_text(cx,s+28+self.text_size*1.7,text=mood,fill=color,font=('Segoe UI',self.text_size))
  def tick(self):
   if self.closed:return
-  if not self.cfg.get('reduced_motion',False) and self.state_name in ('LISTENING','SPEAKING'):
+  if not self.cfg.get('reduced_motion',False) and (self.state_name in ('LISTENING','SPEAKING') or getattr(self,'voice_zoom',0)>.1):
    self.angle=(self.angle+4)%360;self.phase+=.16;self.draw()
   if self.controls and self.controls.winfo_exists() and self.controls.state()!='withdrawn' and not self.cfg.get('reduced_motion',False):
    from theme_manager import palette

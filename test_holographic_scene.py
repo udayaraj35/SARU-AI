@@ -6,6 +6,13 @@ from holographic_scene import HolographicScene
 
 
 class SceneTests(unittest.TestCase):
+ def test_listening_zoom_in_and_stopped_zoom_out_are_smooth(self):
+  scene=HolographicScene(320,360,points=100);idle=scene.voice_zoom
+  scene.render(state='LISTENING');first=scene.voice_zoom
+  for _ in range(18):scene.render(state='LISTENING')
+  self.assertTrue(idle<first<scene.voice_zoom<=1.04)
+  active=scene.voice_zoom;scene.render(state='STOPPED')
+  self.assertTrue(idle<scene.voice_zoom<active)
  def test_reduced_motion_freezes_decorative_and_audio_motion(self):
   scene=HolographicScene(320,360,points=180)
   self.assertEqual(scene.render(0,0,'STOPPED',True).tobytes(),scene.render(9,1,'SPEAKING',True).tobytes())
