@@ -109,14 +109,23 @@ class BackendRuntime:
             method={'social_open':'open','social_unread':'unread','social_read':'read_chat'}[action]
             self.job(lambda:self.social.submit(method,*(() if arg is None else (arg,))).result(timeout=70))
             return 'Opening the requested local social session; account login may be required.'
-        if action=='social':
+        if action in ('social','whatsapp_request'):
+            direct=action=='whatsapp_request' and bool(self.config.get('whatsapp_direct_send',False))
+            if action=='whatsapp_request' and (arg.get('platform')!='whatsapp' or arg.get('action')!='send' or not str(arg.get('target','')).strip() or not str(arg.get('text','')).strip()):raise ValueError('A specific WhatsApp recipient and message are required')
             if arg.get('action')=='open':
                 self.job(lambda:self.social.submit('open_profile',arg['platform'],arg['target']).result(timeout=70))
                 return 'Opening the requested social profile.'
             def ready(review):
+                if direct:
+                    if self.integrity_error:raise PermissionError(self.integrity_error)
+                    developer_identity(self.source)
+                    if any(review.get(key)!=arg.get(key) for key in ('platform','action','target','text')):raise ValueError('WhatsApp draft does not match the owner request')
+                    token=gate.grant(review)
+                    self.job(lambda:self.social.submit('commit',review,token).result(timeout=30))
+                    return
                 self.reviewed(review,lambda op,token:self.social.submit('commit',op,token).result(timeout=30),'Review exact social action and visible account/draft:\n'+json.dumps(review,ensure_ascii=False)+'\nDelivery will not be claimed from a click alone.')
             self.job(lambda:self.social.submit('prepare',arg).result(timeout=90),ready)
-            return 'Preparing a visible social draft; final submission awaits review.'
+            return 'Preparing the exact WhatsApp message and sending once; actual result follows.' if direct else 'Preparing a visible social draft; final submission awaits review.'
         if action=='update':
             from updater import Updater
             from version import VERSION

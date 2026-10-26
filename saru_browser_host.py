@@ -12,7 +12,7 @@ def run(data,self_test=False):
  from PySide6.QtCore import QUrl,QTimer
  from PySide6.QtGui import QAction,QKeySequence,QIcon
  from PySide6.QtWidgets import QApplication,QMainWindow,QTabWidget,QToolBar,QLineEdit,QFileDialog,QMessageBox,QInputDialog
- from PySide6.QtWebEngineCore import QWebEngineProfile,QWebEnginePage
+ from PySide6.QtWebEngineCore import QWebEngineProfile,QWebEnginePage,qWebEngineChromiumVersion
  from PySide6.QtWebEngineWidgets import QWebEngineView
  app=QApplication(sys.argv[:1]);app.setApplicationName('SARU Browser')
  data=Path(data);data.mkdir(parents=True,exist_ok=True)
@@ -26,6 +26,8 @@ def run(data,self_test=False):
   def __init__(self):
    super().__init__();self.setWindowTitle('SARU Browser');self.resize(1200,800);self.setWindowIcon(QIcon(str(Path(__file__).with_name('saru.ico'))))
    self.profile=QWebEngineProfile('SARU',self);self.profile.setPersistentStoragePath(str(data/'profile'));self.profile.setCachePath(str(data/'cache'));self.profile.setPersistentCookiesPolicy(QWebEngineProfile.PersistentCookiesPolicy.AllowPersistentCookies)
+   from browser_identity import compatible_user_agent
+   self.profile.setHttpUserAgent(compatible_user_agent(self.profile.httpUserAgent(),qWebEngineChromiumVersion()))
    self.profile.downloadRequested.connect(self.download)
    self.tabs=QTabWidget();self.tabs.setTabsClosable(True);self.tabs.setMovable(True);self.setCentralWidget(self.tabs);self.tabs.tabCloseRequested.connect(self.close_tab);self.tabs.currentChanged.connect(self.sync)
    bar=QToolBar('Navigation');self.addToolBar(bar)

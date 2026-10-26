@@ -28,7 +28,7 @@ with tempfile.TemporaryDirectory(prefix='.gui-test-',dir=base) as temp:
    app['cfg']['speak']=False
    with patch.object(app['backend_runtime'],'handle',return_value='Synthetic draft prepared; no send') as backend:
     app['send_message']('WhatsApp ma Test Contact lai: Hello')
-    backend.assert_called_once_with(('social',{'platform':'whatsapp','action':'send','target':'Test Contact','text':'Hello'}))
+    backend.assert_called_once_with(('whatsapp_request',{'platform':'whatsapp','action':'send','target':'Test Contact','text':'Hello'}))
    player=Mock()
    with patch.dict(app,{'media_player':Mock(return_value=player)}):
     app['send_message']('YouTube ma Nepali folk music bajau')

@@ -10,6 +10,8 @@ from urllib.parse import urlsplit
 
 def checked_url(value):
  value=value.strip()
+ aliases={'whatsapp':'https://web.whatsapp.com/','whatsapp web':'https://web.whatsapp.com/'}
+ value=aliases.get(value.casefold(),value)
  if len(value)>8192:raise ValueError('URL too long')
  if re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*:',value) and not value.startswith(('https://','http://')):raise ValueError('Use an HTTP(S) website.')
  if '://' not in value:value='https://'+value

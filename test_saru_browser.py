@@ -4,8 +4,14 @@ from saru_browser import checked_url,SaruBrowser
 from assistant_commands import parse_command
 
 class BrowserTests(unittest.TestCase):
+ def test_browser_identity_uses_actual_engine_version(self):
+  from browser_identity import compatible_user_agent
+  agent=compatible_user_agent('Mozilla/5.0 QtWebEngine/6.140.0 Chrome/140.0.0.0 Safari/537.36','140.0.7339.225')
+  self.assertNotIn('QtWebEngine',agent);self.assertIn('Chrome/140.0.7339.225',agent)
+  with self.assertRaises(ValueError):compatible_user_agent(agent,'newest')
  def test_urls_reject_code_files_and_credentials(self):
   self.assertEqual(checked_url('web.whatsapp.com'),'https://web.whatsapp.com')
+  self.assertEqual(checked_url('WhatsApp'),'https://web.whatsapp.com/')
   for url in ('javascript:alert(1)','file:///C:/secret','https://user:password@example.com','data:text/html,hello'):
    with self.assertRaises(ValueError):checked_url(url)
  def test_owner_browser_commands(self):

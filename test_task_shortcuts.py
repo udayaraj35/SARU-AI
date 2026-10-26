@@ -12,7 +12,7 @@ class TaskShortcutTests(unittest.TestCase):
    self.assertEqual(parse_command(text),('media_control',expected))
  def test_natural_whatsapp_uses_actual_draft_executor(self):
   for text in ('send WhatsApp message to Test Contact: Hello please', 'WhatsApp ma Test Contact lai: Hello please','WhatsApp ma Test Contact lai Hello please message pathau'):
-   expected=('backend',('social',{'platform':'whatsapp','action':'send','target':'Test Contact','text':'Hello please'}))
+   expected=('backend',('whatsapp_request',{'platform':'whatsapp','action':'send','target':'Test Contact','text':'Hello please'}))
    self.assertEqual(parse_command(text),expected)
    self.assertEqual(voice_request('SARU '+text),expected)
  def test_video_queries_route_to_embedded_player(self):

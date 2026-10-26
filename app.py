@@ -1017,7 +1017,7 @@ def run_agent_task(command,output=None,quiet=False,crm_approved=False):
    if cfg.get('keys',{}).get('WhatsApp Business') and cfg.get('whatsapp_phone_id'):
     compose_social('WhatsApp',msg,'+'+phone);result='WhatsApp Business composer ready. Review and send using the connected account.'
    else:
-    result=backend_runtime.handle(('social',{'platform':'whatsapp','action':'send','target':'+'+phone,'text':msg}))
+    result=backend_runtime.handle(('whatsapp_request',{'platform':'whatsapp','action':'send','target':'+'+phone,'text':msg}))
   elif action=='email':
    match=re.fullmatch(r'\s*([^ :]+@[^ :]+)\s*:\s*([^|]{1,250})\|\s*(.{1,4000})',arg,re.S)
    if not match:raise ValueError('Format: email to user@example.com: Subject | Message')
@@ -1729,6 +1729,7 @@ def show_dashboard():
  available_app_actions.update({'Open SARU':lambda:control_own_app('show'),'Hide SARU':lambda:control_own_app('hide'),'Restart SARU':lambda:control_own_app('restart'),'Exit SARU':lambda:control_own_app('exit'),'Close current panel':lambda:control_own_app('close_panel'),'Self improvement status':lambda:announce_local(apply_saru_control(('edit','status')))})
  available_app_actions.update({'Voice Studio':list_voices_dialog,'Test voice':voice_test,'Test microphone':audio_diagnostic,'Models':list_gemini_models,'Change portrait':change_photo,'Change background':change_dashboard,'Change floating portrait':change_orb_photo,'Restore background':reset_dashboard,'Save note':add_note,'Export memory':export_memory,'Dependencies':dependencies_report,'Improve SARU':improvement_studio,'Start voice':lambda:voice_hub.start(),'Stop screen view':lambda:apply_saru_control(('screen_watch','stop')),'Sleep PC':lambda:propose_power_action('sleep')})
  available_app_actions['Clock country']=clock_settings
+ available_app_actions.update({'Home':lambda:apply_saru_control(('navigation','home')),'Apps & Tools':lambda:apply_saru_control(('navigation','tools')),'Device Control':lambda:apply_saru_control(('navigation','controls')),'Weather':lambda:apply_saru_control(('navigation','weather'))})
  active_page=Dashboard(root,dict(actions,**available_app_actions),status,cfg.get('photo',str(ROOT/'saru_photo.jpg')),show_reference,cfg,TASK_LOG)
  page=active_page
  voice_hub.sink=page.voice_event

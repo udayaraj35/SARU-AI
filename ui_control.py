@@ -15,6 +15,8 @@ def ui_intent(text):
  if low in ('list tabs','show tabs'):return 'tabs',None
  if low in ('list app options','show app options','list saru options'):return 'menu',None
  if low in ('list settings options','show settings options'):return 'fields',None
+ own=re.fullmatch(r'(?:(?:saru\s+)?(?:ma|ko)|आफ्नो एपको|एपको)\s+(.{1,100}?)\s+(?:kholnu|khola|kholideu|खोल|खोल्नुहोस्)',q,re.I)
+ if own:return 'action',own[1]
  patterns=[(r'(?:press button|click button|बटन थिच) (.{1,160})','press'),(r'(?:select tab|open tab|ट्याब खोल) (.{1,100})','tab'),(r'(?:open option|run option|(?:saru )?option|मेनु खोल) (.{1,160})','action')]
  for pattern,kind in patterns:
   m=re.fullmatch(pattern,q,re.I)

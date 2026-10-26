@@ -31,7 +31,7 @@ def task_shortcut(text):
   m=re.fullmatch(pattern,q,re.I)
   if m:
    target,body=m[1].strip(),m[2].strip()
-   if target and body:return 'backend',('social',{'platform':'whatsapp','action':'send','target':target,'text':body})
+   if target and body:return 'backend',('whatsapp_request',{'platform':'whatsapp','action':'send','target':target,'text':body})
  for pattern in (
   YOUTUBE+r'\s*(?:ma|मा)\s+(.{1,400}?)\s+'+PLAY,
   r'(?:play|open)\s+(.{1,400}?)\s+(?:on|in)\s+'+YOUTUBE,
